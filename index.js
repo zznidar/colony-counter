@@ -1,4 +1,4 @@
-function analyse(slika) {
+function analyse(slika, init=true) {
     colonies = 0;
     console.log(slika.width, slika.height);
     sirina = slika.width
@@ -7,9 +7,11 @@ function analyse(slika) {
     canvas.width = sirina
     canvas.height = visina
 
-    document.getElementById("slider_Sx").value = 0.5*(document.getElementById("slider_Sx").max = sirina);
-    document.getElementById("slider_Sy").value = 0.5*(document.getElementById("slider_Sy").max = visina);
-    document.getElementById("slider_r").value = 0.5*(document.getElementById("slider_r").max = Math.round(Math.max(sirina, visina)/2));
+    if(init) {
+        document.getElementById("slider_Sx").value = 0.5*(document.getElementById("slider_Sx").max = sirina);
+        document.getElementById("slider_Sy").value = 0.5*(document.getElementById("slider_Sy").max = visina);
+        document.getElementById("slider_r").value = 0.5*(document.getElementById("slider_r").max = Math.round(Math.max(sirina, visina)/2));
+    }
 
     context.drawImage(base_image, 0, 0);
 
