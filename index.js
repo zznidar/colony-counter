@@ -86,7 +86,7 @@ function analyse(slika) {
     }
 
     console.log("Counted colonies: ", colonies);
-
+    document.getElementById("outputText").innerText = `Counted colonies: ${colonies} \n\nImage size: ${sirina}x${visina} px`
     
 
 
