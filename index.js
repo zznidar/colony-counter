@@ -1,4 +1,5 @@
 function analyse(slika) {
+    colonies = 0;
     console.log(slika.width, slika.height);
     sirina = slika.width
     visina = slika.height
@@ -91,11 +92,10 @@ function analyse(slika) {
 
 }
 
-const L_threshold = 0.4;
-const size_threshold = 10;
+ L_threshold = 0.4;
+ size_threshold = 10;
 const line_colour = [0, 0, 0, 255];
 const centre_colour = [3, 219, 252, 255]
-colonies = 0;
 
 function istHell(rgba) {
     // Convert RGB to HSL: https://www.rapidtables.com/convert/color/rgb-to-hsl.html
