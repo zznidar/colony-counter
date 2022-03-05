@@ -78,9 +78,10 @@ function analyse(slika) {
                 setPixels(sredina+1, y, ...line_colour);
 
                 if(a[sredina][y] > size_threshold && b[y][sredina] > size_threshold) {
-                    for(let i = -1; i < 2; i++) {
-                        for(let j = -1; j < 2; j++) {
-                            setPixels(sredina + i, y + j, ...centre_colour);
+                    for(let i = -3; i < 5; i++) {
+                        for(let j = -3; j < 5; j++) {
+                            setPixels(sredina + i, y + j, ...centre_colour); // ...centre_colour // ...[Math.round(Math.random()*255), Math.round(Math.random()*255), Math.round(Math.random()*255), 255]
+                            a[sredina + i][y + j] = -1; // already checked
                         }
                     }
                     colonies++;
