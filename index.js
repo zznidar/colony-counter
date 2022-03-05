@@ -34,7 +34,7 @@ function analyse(slika) {
                 //console.log(x, y, "ist hell");
                 colonyStart = y;
                 y++;
-                while(istHell(arr.slice(0 + 4*x + 4*sirina*y, 4 + 4*x + 4*sirina*y))) { // pixel svetel
+                while(y < visina && istHell(arr.slice(0 + 4*x + 4*sirina*y, 4 + 4*x + 4*sirina*y))) { // pixel svetel
                     setPixels(x, y, 255, 0, 0, 255);
                     y++;
                 }
@@ -58,7 +58,7 @@ function analyse(slika) {
                 //console.log(x, y, "ist hell");
                 colonyStart = x;
                 x++;
-                while(istHell(arr.slice(0 + 4*x + 4*sirina*y, 4 + 4*x + 4*sirina*y))) { // pixel svetel
+                while(x < sirina && istHell(arr.slice(0 + 4*x + 4*sirina*y, 4 + 4*x + 4*sirina*y))) { // pixel svetel
                     //setPixels(x, y, 255, 0, 0, 255);
                     x++;
                 }
