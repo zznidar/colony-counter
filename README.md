@@ -7,7 +7,10 @@ A prototype.
 
 ## How to use
 1. Pick a photo of your Petri dish.
-2. Play with sliders to adjust settings.  
+2. Play with sliders to adjust settings:
+    * **Lightness**: How bright should a pixel be to treat it as a colony
+    * **Size**: How large the colonies are. This is to prevent little flares from being counted as colonies
+    * **Circle**: To avoid counting dust and dirt on your table, only a circular part of the picture is analysed. Set the centre and radius of that circle.
 
 Red colour represents areas of colonies. Blue squares show the centre of each colony. Count is shown below the image. 
 
