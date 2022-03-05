@@ -7,13 +7,15 @@
     <title>Colony Counter</title>
 </head>
 <body>
+    <input type="file" id="input" capture="environment" accept="image/*"/>
+    <br>
     <canvas id="canvas" width="1080" height="1080"></canvas>
 
     <script src="index.js"></script>
     <script>
         var canvas = document.getElementById('canvas'),
         context = canvas.getContext('2d');
-
+/*
         make_base();
 
         function make_base() {
@@ -22,6 +24,22 @@
             base_image.onload = function(){
                 analyse(this);
             }
+        }
+*/
+
+        // https://stackoverflow.com/a/6776055
+        var input = document.getElementById('input');
+        input.addEventListener('change', handleFiles);
+
+        function handleFiles(e) {
+
+
+                base_image = new Image();
+                base_image.src = URL.createObjectURL(e.target.files[0]);
+                base_image.onload = function(){
+                    analyse(this);
+                }
+            URL.revokeObjectURL(base_image.src)
         }
 
     </script>

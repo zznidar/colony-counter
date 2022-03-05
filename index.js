@@ -30,6 +30,7 @@ function analyse(slika) {
         let colonyStart, colonyEnd;
         for(let y = 0; y < visina; y++) { // 0; visina
             //x, y
+            if(!isInCircle(x, y)) continue;
             if(istHell(arr.slice(0 + 4*x + 4*sirina*y, 4 + 4*x + 4*sirina*y))) { // pixel svetel
                 //console.log(x, y, "ist hell");
                 colonyStart = y;
@@ -54,6 +55,7 @@ function analyse(slika) {
         let colonyStart, colonyEnd;
         for(let x = 0; x < sirina; x++) { // 0; visina
             //x, y
+            if(!isInCircle(x, y)) continue;
             if(istHell(arr.slice(0 + 4*x + 4*sirina*y, 4 + 4*x + 4*sirina*y))) { // pixel svetel
                 //console.log(x, y, "ist hell");
                 colonyStart = x;
@@ -114,6 +116,17 @@ function setPixels(x, y, r, g, b, a) {
     arr_shallow[2 + 4*x + 4*sirina*y] = b;
     arr_shallow[3 + 4*x + 4*sirina*y] = a;
 
+}
+
+// circle
+S = [500, 500];
+r = 250;
+function isInCircle(x, y) {
+    return(distance([x, y], S) < r)
+}
+
+function distance(T1, T2) {
+    return(Math.hypot(T2[0]-T1[0], T2[1]-T1[1]))
 }
 
 
