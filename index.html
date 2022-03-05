@@ -15,6 +15,22 @@
         <p id="outputText">Colonies counted: </p>
     </div>
     <div id="settings">
+        <label for="slider_L">Lightness threshold: </label>
+        <input type="range" min="0.01" max="0.99" value="0.4" step="0.01" class="slider" name="slider_L" id="slider_L">
+
+        <label for="slider_size">Size threshold: </label>
+        <input type="range" min="1" max="100" value="10" step="1" class="slider" name="slider_size" id="slider_size">
+
+        <br>
+
+        <label for="slider_Sx">Circle centre x: </label>
+        <input type="range" min="0" max="1080" value="500" step="1" class="slider" name="slider_Sx" id="slider_Sx">
+
+        <label for="slider_Sy">Circle centre y: </label>
+        <input type="range" min="0" max="1080" value="500" step="1" class="slider" name="slider_Sy" id="slider_Sy">
+
+        <label for="slider_r">Circle radius: </label>
+        <input type="range" min="0" max="500" value="400" step="1" class="slider" name="slider_r" id="slider_r">
 
     </div>
 
@@ -48,6 +64,16 @@
                 }
             URL.revokeObjectURL(base_image.src)
         }
+
+        // Handle settings changes
+        document.getElementById("settings").addEventListener("change", function(e) {
+            console.log(e.target.value);
+            L_threshold = slider_L.value;
+            size_threshold = slider_size.value;
+            S = [slider_Sx.value, slider_Sy.value];
+            r = slider_r.value;
+            analyse(base_image);
+        })
 
     </script>
 </body>
