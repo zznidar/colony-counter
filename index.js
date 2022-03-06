@@ -32,9 +32,13 @@ function analyse(slika, init=true) {
     // arr = [r00, g00, b00, a00, r10, g10, b10, a10] // Apparently bomo analizirali po vrsticah najprej.
     // r_xy = 0 + 4*x + 4*sirina*y
 
-    for(let x = 0; x < sirina; x++) { // 0; sirina
+    const x_start = Math.max(S[0]-r, 0),
+    y_start = Math.max(S[1]-r, 0),
+    x_end = Math.min(S[0]+r, sirina),
+    y_end = Math.min(S[1]+r, visina);
+    for(let x = x_start; x < x_end; x++) { // 0; sirina
         let colonyStart, colonyEnd;
-        for(let y = 0; y < visina; y++) { // 0; visina
+        for(let y = y_start; y < y_end; y++) { // 0; visina
             //x, y
             if(!isInCircle(x, y)) continue;
             if(istHell(arr.slice(0 + 4*x + 4*sirina*y, 4 + 4*x + 4*sirina*y))) { // pixel svetel
@@ -57,9 +61,9 @@ function analyse(slika, init=true) {
         }
     }
 
-    for(let y = 0; y < visina; y++) { // 0; sirina
+    for(let y = y_start; y < y_end; y++) { // 0; sirina
         let colonyStart, colonyEnd;
-        for(let x = 0; x < sirina; x++) { // 0; visina
+        for(let x = x_start; x < x_end; x++) { // 0; visina
             //x, y
             if(!isInCircle(x, y)) continue;
             if(istHell(arr.slice(0 + 4*x + 4*sirina*y, 4 + 4*x + 4*sirina*y))) { // pixel svetel
