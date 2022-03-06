@@ -36,6 +36,11 @@
         <label for="slider_r">Circle radius: </label>
         <input type="range" min="0" max="500" value="400" step="1" class="slider" name="slider_r" id="slider_r">
 
+        <br>
+
+        <label for="check_HQ">Analyse full-quality image (slow): </label>
+        <input type="checkbox" class="slider" name="check_HQ" id="check_HQ">
+
     </div>
 
     <footer style="color: gray;">
@@ -70,7 +75,8 @@
                 base_image.src = URL.createObjectURL(e.target.files[0]);
                 base_image.onload = function(){
                     URL.revokeObjectURL(base_image.src)
-                    analyse(this);
+                    check_HQ.checked = false;
+                    analyse(this, true, !check_HQ.checked);
                 }
         }
 
@@ -81,7 +87,7 @@
             size_threshold = slider_size.value;
             S = [slider_Sx.value, slider_Sy.value];
             r = slider_r.value;
-            analyse(base_image, false);
+            analyse(base_image, false, !check_HQ.checked);
         })
 
     </script>

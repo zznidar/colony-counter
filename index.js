@@ -1,19 +1,30 @@
-function analyse(slika, init=true) {
+function analyse(slika, init=true, resize=true) {
     colonies = 0;
     console.log(slika.width, slika.height);
     sirina = slika.width
     visina = slika.height
-
-    canvas.width = sirina
-    canvas.height = visina
 
     if(init) {
         document.getElementById("slider_Sx").value = 0.5*(document.getElementById("slider_Sx").max = sirina);
         document.getElementById("slider_Sy").value = 0.5*(document.getElementById("slider_Sy").max = visina);
         document.getElementById("slider_r").value = 0.5*(document.getElementById("slider_r").max = Math.round(Math.max(sirina, visina)/2));
     }
+    
+    // Resize image if greater than 2000x2000 px
+    if((sirina > 2000 || visina > 2000) && resize) {
+        console.log("resizing", sirina, visina, "divide by 2");
+        sirina = Math.floor(sirina/2);
+        visina = Math.floor(visina/2);
+        r = Math.floor(r/2);
+        S[0] = Math.floor(S[0]/2);
+        S[1] = Math.floor(S[1]/2);
+    }
 
-    context.drawImage(base_image, 0, 0);
+    canvas.width = sirina
+    canvas.height = visina
+
+
+    context.drawImage(base_image, 0, 0, sirina, visina);
 
     a = Array(sirina) // prava orientacija
     for(let i = 0; i < sirina; i++) {
@@ -97,7 +108,7 @@ function analyse(slika, init=true) {
     }
 
     console.log("Counted colonies: ", colonies);
-    document.getElementById("outputText").innerText = `Counted colonies: ${colonies} \n\nImage size: ${sirina}x${visina} px`
+    document.getElementById("outputText").innerText = `Counted colonies: ${colonies} \n\nImage size: ${sirina}x${visina} px (original: ${slika.width}x${slika.height} px)`
     
 
 
