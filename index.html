@@ -25,6 +25,9 @@
         <label for="slider_size">Size threshold: </label>
         <input type="range" min="1" max="100" value="10" step="1" class="slider" name="slider_size" id="slider_size">
 
+        <label for="check_neg">Dark colonies on bright agar?: </label>
+        <input type="checkbox" class="slider" name="check_neg" id="check_neg">
+
         <br>
 
         <label for="slider_Sx">Circle centre x: </label>
@@ -76,7 +79,7 @@
                 base_image.onload = function(){
                     URL.revokeObjectURL(base_image.src)
                     check_HQ.checked = false;
-                    analyse(this, true, !check_HQ.checked);
+                    analyse(this, true, !check_HQ.checked, check_neg.checked);
                 }
         }
 
@@ -87,7 +90,7 @@
             size_threshold = slider_size.value;
             S = [slider_Sx.value, slider_Sy.value];
             r = slider_r.value;
-            analyse(base_image, false, !check_HQ.checked);
+            analyse(base_image, false, !check_HQ.checked, check_neg.checked);
         })
 
     </script>

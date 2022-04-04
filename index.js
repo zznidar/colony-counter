@@ -1,4 +1,6 @@
-function analyse(slika, init=true, resize=true) {
+negative = false // If we want to analyse dark bacteria on light agar (e. g. HA in contrast to KA)
+function analyse(slika, init=true, resize=true, negate=false) {
+    negative = negate;
     colonies = 0;
     console.log(slika.width, slika.height);
     sirina = slika.width
@@ -129,7 +131,7 @@ function istHell(rgba) {
 
     let L = (Cmax + Cmin)/2;
 
-    return(L > L_threshold);
+    return((L > L_threshold) != negative);
 }
 
 function setPixels(x, y, r, g, b, a) {
