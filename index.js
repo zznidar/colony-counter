@@ -155,3 +155,88 @@ function distance(T1, T2) {
 
 
 // context.getImageData(x, y, sirina, visina).data // sirina = visina = 1, ce hocemo 1 pixel
+
+
+/* Vzamemo povprecje npr. from area 100 x 100 px okrog sredisca slike
+    supposing, da je tam sigurno petrijevka,
+    in to nastavimo za agar colour.
+
+    Sprehajamo se od levega roba proti sredini (in enako z desnega) po 5 pixlov, povprecimo,
+    zaznamo robno obmocje.
+    Nato robnih 5 pixlov krajsamo za 1 po 1 pixel, dokler ne pridemo do dejanskega roba.
+*/
+
+function colourDistance(yourColour, targetColour, absolute=true) {
+    let [r, g, b, a] = yourColour;
+    let [rt, gt, bt, at] = targetColour;
+
+    if(absolute) {
+        return(Math.abs(r-rt) + Math.abs(g-gt) + Math.abs(b-bt) + Math.abs(a-at))
+    } else {
+        return((r-rt) + (g-gt) + (b-bt) + (a-at))
+    }
+
+}
+
+function getAverageColour(x, y, width, height) {
+    let sum = [0, 0, 0, 0];
+    let count = 0;
+    for(let i = x; i < x + width; i++) {
+        for(let j = y; j < y + height; j++) {
+            let [r, g, b, a] = arr.slice(0 + 4*i + 4*sirina*j, 4 + 4*i + 4*sirina*j);
+            sum[0] += r;
+            sum[1] += g;
+            sum[2] += b;
+            sum[3] += a;
+            count++;
+        }
+    }
+    return(sum.map(x => Math.round(x/count)))
+}
+
+function detectColour(x, y, width, height, nGroups=2) {
+    // fn above does a surprisingly good job of detecting colours, but it's not perfect.
+    // This function is a bit more accurate, but it's still not perfect.
+    // Thanks, GitHub Copilot, for these two comments. And for the getAverageColour function :D
+
+    /* Vzamemo prvi pixel, damo barvo v 1. skupino. Vzamemo drugi pixel, damo v 2. skupino.
+        Naslednji pixel: v skupino, ki je bližje. To skupino zdaj povprečimo (utežno, glede na število elementov),
+        npr: v 1. skupini so že 4 pixli (barva je njihov povpreček), dodati hočemo še enega. Staro povprečje * 4/5 + novo povprečje * 1/5
+    */
+
+    let groups = [[127,127,127,255, 1], [127,127,127,255, 1]];
+    for(let i = x; i < x + width; i++) {
+        for(let j = y; j < y + height; j++) {
+            let [r, g, b, a] = arr.slice(0 + 4*i + 4*sirina*j, 4 + 4*i + 4*sirina*j);
+            if(groups.length < nGroups) {
+                groups.push([r, g, b, a, 1]);
+                continue;
+            }
+
+            let closestGroupIndex;
+            let closestGroupDistance;
+            for(let g = 0; g < groups.length; g++) {
+                let dist = colourDistance([r, g, b, a], groups[g].slice(0,-1));
+                //console.log([r, g, b, a], groups[g].slice(0, -1), dist, closestGroupDistance);
+                if(closestGroupIndex === undefined || dist < closestGroupDistance) {
+                    //console.log("Is smaller");
+                    closestGroupDistance = dist;
+                    closestGroupIndex = g;
+                }
+            }
+            // Closest group was found. Now add it to it.
+            newCount = groups[closestGroupIndex][4]+1
+            groups[closestGroupIndex][0] = (groups[closestGroupIndex][0] * (newCount-1)/newCount) + (r * 1/newCount);
+            groups[closestGroupIndex][1] = (groups[closestGroupIndex][1] * (newCount-1)/newCount) + (g * 1/newCount);
+            groups[closestGroupIndex][2] = (groups[closestGroupIndex][2] * (newCount-1)/newCount) + (b * 1/newCount);
+            groups[closestGroupIndex][3] = (groups[closestGroupIndex][3] * (newCount-1)/newCount) + (a * 1/newCount);
+            groups[closestGroupIndex][4] = newCount;
+        }
+    }
+    return(groups.map(x => x.map(y => Math.round(y))))
+
+    // If there's very few colonies, we don't get their colour. 
+    // Create a new group only when there's a difference of more than some threshold?
+}
+
+detectColour(sirina/2, visina/2, 100, 100) // area must have area if we want to detect multiple colour groups.
