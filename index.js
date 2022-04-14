@@ -116,6 +116,7 @@ function analyse(slika, init=true, resize=true, negate=false) {
 
     context.putImageData(imgdata, 0, 0);
 
+    detectColour(sirina/2, visina/2, 100, 100) // area must have area if we want to detect multiple colour groups.
 }
 
  L_threshold = 0.4;
@@ -233,10 +234,9 @@ function detectColour(x, y, width, height, nGroups=2) {
             groups[closestGroupIndex][4] = newCount;
         }
     }
+    console.log("%c Colour of colonies on agar-coloured background", `color: rgb(${groups[0].slice(0,3)}); background-color: rgb(${groups[1].slice(0,3)})`);
     return(groups.map(x => x.map(y => Math.round(y))))
 
     // If there's very few colonies, we don't get their colour. 
     // Create a new group only when there's a difference of more than some threshold?
 }
-
-detectColour(sirina/2, visina/2, 100, 100) // area must have area if we want to detect multiple colour groups.
