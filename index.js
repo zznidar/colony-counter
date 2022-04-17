@@ -116,7 +116,11 @@ function analyse(slika, init=true, resize=true, negate=false) {
 
     context.putImageData(imgdata, 0, 0);
 
-    detectColour(sirina/2, visina/2, 100, 100) // area must have area if we want to detect multiple colour groups.
+    let barve_temp_var_name = detectColour(sirina>>>1, visina>>>1, 100, 100, 2) // area must have area if we want to detect multiple colour groups. // Also, bitshift instead of /2 to prevent floats
+    console.log(barve_temp_var_name);
+    for(let i of barve_temp_var_name) {
+        console.log(`%c${i}`, `background-color: rgb(${i[0]}, ${i[1]}, ${i[2]}); font-weight: bold;`);
+    }
 }
 
  L_threshold = 0.4;
@@ -205,25 +209,33 @@ function detectColour(x, y, width, height, nGroups=2) {
         npr: v 1. skupini so že 4 pixli (barva je njihov povpreček), dodati hočemo še enega. Staro povprečje * 4/5 + novo povprečje * 1/5
     */
 
-    let groups = [[127,127,127,255, 1], [127,127,127,255, 1]];
+    console.groupCollapsed("colourDetect");
+    //let groups = [[127,127,127,255, 1], [127,127,127,255, 1]];
+    let groups = [];
+    //TODO: Do not use pre-defined groups. Instead, create a new group (as long as there are fewer than nGroups groups) only when colour distance is large enough (greater than 20, idk)
     for(let i = x; i < x + width; i++) {
         for(let j = y; j < y + height; j++) {
             let [r, g, b, a] = arr.slice(0 + 4*i + 4*sirina*j, 4 + 4*i + 4*sirina*j);
-            if(groups.length < nGroups) {
+            if(!groups.length) {
                 groups.push([r, g, b, a, 1]);
                 continue;
             }
 
             let closestGroupIndex;
             let closestGroupDistance;
-            for(let g = 0; g < groups.length; g++) {
-                let dist = colourDistance([r, g, b, a], groups[g].slice(0,-1));
-                //console.log([r, g, b, a], groups[g].slice(0, -1), dist, closestGroupDistance);
+            for(let groupIndex = 0; groupIndex < groups.length; groupIndex++) {
+                let dist = Math.abs(colourDistance([r, g, b, a], groups[groupIndex].slice(0,-1), true));
+                            if(i < x + width/10) console.log([r, g, b, a], groups[groupIndex].slice(0, -1), dist, closestGroupDistance);
                 if(closestGroupIndex === undefined || dist < closestGroupDistance) {
                     //console.log("Is smaller");
                     closestGroupDistance = dist;
-                    closestGroupIndex = g;
+                    closestGroupIndex = groupIndex;
                 }
+            }
+                        if(i < x + width/10) console.log(closestGroupDistance, closestGroupIndex, JSON.stringify(groups));
+            if(closestGroupDistance > 20 && groups.length < nGroups) {
+                groups.push([r, g, b, a, 1]);
+                continue;
             }
             // Closest group was found. Now add it to it.
             newCount = groups[closestGroupIndex][4]+1
@@ -234,6 +246,7 @@ function detectColour(x, y, width, height, nGroups=2) {
             groups[closestGroupIndex][4] = newCount;
         }
     }
+    console.groupEnd("colourDetect");
     console.log("%c Colour of colonies on agar-coloured background", `color: rgb(${groups[0].slice(0,3)}); background-color: rgb(${groups[1].slice(0,3)})`);
     return(groups.map(x => x.map(y => Math.round(y))))
 
