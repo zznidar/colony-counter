@@ -255,3 +255,58 @@ function detectColour(x, y, width, height, nGroups=2) {
     // If there's very few colonies, we don't get their colour. 
     // Create a new group only when there's a difference of more than some threshold?
 }
+
+
+function detectPetriDish(agarColour) {
+    let x0, x1, y0, y1;
+    // Sprehodimo se od roba proti sredini, iščoč 5-average agarja.
+    for(let x = 0; x < sirina>>>1; x += 5) {
+        let barvus = getAverageColour(x, visina>>>1, 5, 1);
+        if(colourDistance(barvus, agarColour) < 20) {
+            console.log(x, barvus, colourDistance(barvus, agarColour));
+            canvas.getContext('2d').fillRect(x, visina>>>1, 20, 20)
+            x0 = x;
+            //return([x, visina>>>1]);
+        }
+    }
+
+    for(let x = sirina; x > sirina>>>1; x -= 5) {
+        let barvus = getAverageColour(x, visina>>>1, 5, 1);
+        if(colourDistance(barvus, agarColour) < 20) {
+            console.log(x, barvus, colourDistance(barvus, agarColour));
+            let ctx = canvas.getContext('2d');
+            ctx.fillStyle = "blue";
+            ctx.fillRect(x, visina>>>1, 20, 20)
+            x1 = x;
+        }
+    }
+
+    for(let y = 0; y < visina>>>1; y += 5) {
+        let barvus = getAverageColour(sirina>>>1, y, 1, 5);
+        if(colourDistance(barvus, agarColour) < 20) {
+            console.log(y, barvus, colourDistance(barvus, agarColour));
+            canvas.getContext('2d').fillRect(sirina>>>1, y, 20, 20)
+            y0 = y;
+        }
+    }
+
+    for(let y = visina; y > visina>>>1; y -= 5) {
+        let barvus = getAverageColour(sirina>>>1, y, 1, 5);
+        if(colourDistance(barvus, agarColour) < 20) {
+            console.log(y, barvus, colourDistance(barvus, agarColour));
+            let ctx = canvas.getContext('2d');
+            ctx.fillStyle = "blue";
+            ctx.fillRect(sirina>>>1, y, 20, 20);
+            y1 = y;
+        }
+    }
+
+    // Now precisely find the edge (by removing pixels from the edgy-5-pixels, one-by-one)
+
+    // Krožnica je zdaj natanko določena. Analiziramo samo znotraj nje.
+            
+
+    // TODO: Draw a graph of distance (or better, ratio of distances) to set the threshold. Probably when there's a big enough change && colour is close enough.
+
+    // Also, maybe if pixel is close enough to black/white, skip it when calculating avg distance (it's probably flomaster) // Maybe that's not even needed -- flomaster is more than 5 px away from agar edge :shrug:
+}
