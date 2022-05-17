@@ -121,6 +121,12 @@ function analyse(slika, init=true, resize=true, negate=false) {
         console.log(`%c${i}`, `background-color: rgb(${i[0]}, ${i[1]}, ${i[2]}); font-weight: bold;`);
     }
     context.putImageData(imgdata, 0, 0);
+
+    bgColour = barve_temp_var_name[2];
+    ccColour = barve_temp_var_name[3];
+    // Better would be to compare number of elements of each colour,
+    // then take the most common colour as the bg and 2nd most common as the cc.
+    detectPetriDish(bgColour);
 }
 
  L_threshold = 0.4;
@@ -140,6 +146,7 @@ function istHell(rgba) {
 }
 
 function setPixels(x, y, r, g, b, a) {
+    //return;
     arr_shallow[0 + 4*x + 4*sirina*y] = r;
     arr_shallow[1 + 4*x + 4*sirina*y] = g;
     arr_shallow[2 + 4*x + 4*sirina*y] = b;
@@ -250,7 +257,9 @@ function detectColour(x, y, width, height, nGroups=2) {
     }
     console.groupEnd("colourDetect");
     console.log("%c Colour of colonies on agar-coloured background", `color: rgb(${groups[0].slice(0,3)}); background-color: rgb(${groups[1].slice(0,3)})`);
-    return(groups.map(x => x.map(y => Math.round(y))))
+    groups = groups.map(x => x.map(y => Math.round(y)));
+    document.getElementById("outputText").insertAdjacentHTML("beforeend", `<br>Colour of colonies on agar-coloured background: <span style="color: rgb(${groups[3].slice(0,3)}); background-color: rgb(${groups[2].slice(0,3)}); font-weight: bold;">${groups[3].slice(0,3)}</span>`);
+    return(groups)
 
     // If there's very few colonies, we don't get their colour. 
     // Create a new group only when there's a difference of more than some threshold?
@@ -259,47 +268,80 @@ function detectColour(x, y, width, height, nGroups=2) {
 
 function detectPetriDish(agarColour) {
     let x0, x1, y0, y1;
+    //let pet = 5;
+    let ctx = canvas.getContext("2d");
     // Sprehodimo se od roba proti sredini, iščoč 5-average agarja.
-    for(let x = 0; x < sirina>>>1; x += 5) {
-        let barvus = getAverageColour(x, visina>>>1, 5, 1);
+    for(let x = 0, pet = 5; x < sirina>>>1; x += pet) {
+        let barvus = getAverageColour(x, visina>>>1, pet, 1);
         if(colourDistance(barvus, agarColour) < 20) {
             console.log(x, barvus, colourDistance(barvus, agarColour));
-            canvas.getContext('2d').fillRect(x, visina>>>1, 20, 20)
+            ctx.fillRect(x, visina>>>1, 4*pet, 4*pet)
             x0 = x;
-            //return([x, visina>>>1]);
+
+            if(pet == 1) break;
+
+            // Now find exact (1 px) border
+            pet = 1;
+            x -= 5;
+            ctx.fillStyle = "orange";
         }
     }
-
-    for(let x = sirina; x > sirina>>>1; x -= 5) {
-        let barvus = getAverageColour(x, visina>>>1, 5, 1);
+    
+    ctx.fillStyle = "blue";
+    for(let x = sirina, pet = 5; x > sirina>>>1; x -= pet) {
+        let barvus = getAverageColour(x, visina>>>1, pet, 1);
         if(colourDistance(barvus, agarColour) < 20) {
             console.log(x, barvus, colourDistance(barvus, agarColour));
-            let ctx = canvas.getContext('2d');
-            ctx.fillStyle = "blue";
-            ctx.fillRect(x, visina>>>1, 20, 20)
+            ctx.fillRect(x, visina>>>1, 4*pet, 4*pet)
             x1 = x;
+
+            if(pet == 1) break;
+
+            // Now find exact (1 px) border
+            pet = 1;
+            x += 5;
+            ctx.fillStyle = "orange";
         }
     }
 
-    for(let y = 0; y < visina>>>1; y += 5) {
-        let barvus = getAverageColour(sirina>>>1, y, 1, 5);
+    ctx.fillStyle = "green";
+    for(let y = 0, pet = 5; y < visina>>>1; y += pet) {
+        let barvus = getAverageColour(sirina>>>1, y, 1, pet);
         if(colourDistance(barvus, agarColour) < 20) {
             console.log(y, barvus, colourDistance(barvus, agarColour));
-            canvas.getContext('2d').fillRect(sirina>>>1, y, 20, 20)
+            ctx.fillRect(sirina>>>1, y, 4*pet, 4*pet)
             y0 = y;
+
+            if(pet == 1) break;
+
+            // Now find exact (1 px) border
+            pet = 1;
+            y -= 5;
+            ctx.fillStyle = "orange";
+        }
+    }
+    
+    ctx.fillStyle = "pink";
+    for(let y = visina, pet = 5; y > visina>>>1; y -= pet) {
+        let barvus = getAverageColour(sirina>>>1, y, 1, pet);
+        if(colourDistance(barvus, agarColour) < 20) {
+            console.log(y, barvus, colourDistance(barvus, agarColour));
+            ctx.fillRect(sirina>>>1, y, 4*pet, 4*pet);
+            y1 = y;
+
+            if(pet == 1) break;
+
+            // Now find exact (1 px) border
+            pet = 1;
+            y += 5;
+            ctx.fillStyle = "orange";
+
         }
     }
 
-    for(let y = visina; y > visina>>>1; y -= 5) {
-        let barvus = getAverageColour(sirina>>>1, y, 1, 5);
-        if(colourDistance(barvus, agarColour) < 20) {
-            console.log(y, barvus, colourDistance(barvus, agarColour));
-            let ctx = canvas.getContext('2d');
-            ctx.fillStyle = "blue";
-            ctx.fillRect(sirina>>>1, y, 20, 20);
-            y1 = y;
-        }
-    }
+    // First centre expectation. At those x and y, run detection again (should get the diametres of the circle)
+    xc = (x0 + x1) >>> 1;
+    yc = (y0 + y1) >>> 1;
 
     // Now precisely find the edge (by removing pixels from the edgy-5-pixels, one-by-one)
 
@@ -309,4 +351,7 @@ function detectPetriDish(agarColour) {
     // TODO: Draw a graph of distance (or better, ratio of distances) to set the threshold. Probably when there's a big enough change && colour is close enough.
 
     // Also, maybe if pixel is close enough to black/white, skip it when calculating avg distance (it's probably flomaster) // Maybe that's not even needed -- flomaster is more than 5 px away from agar edge :shrug:
+
+    // REFRACTOR: Zakaj imam 4x isto kodo napisano? :face_palm:
+    // Načeloma bi lahko hodil iz obeh smeri hkrati.
 }
