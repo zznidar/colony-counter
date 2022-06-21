@@ -53,92 +53,24 @@ function analyse(slika, init=true, resize=true, negate=false) {
     imgdata = context.getImageData(0, 0, sirina, visina); // TODO: Split canvas evenly among threads
     arr_shallow = imgdata.data;
     arr = Uint8ClampedArray.from(arr_shallow) // This shall not be modified to allow multiple-pass processing.
-    // arr = [r00, g00, b00, a00, r10, g10, b10, a10] // Apparently bomo analizirali po vrsticah najprej.
-    // r_xy = 0 + 4*x + 4*sirina*y
-
-    const x_start = Math.max(S[0]-r, 0),
-    y_start = Math.max(S[1]-r, 0),
-    x_end = Math.min(S[0]+r, sirina),
-    y_end = Math.min(S[1]+r, visina);
-    for(let x = x_start; x < x_end; x++) { // 0; sirina
-        let colonyStart, colonyEnd;
-        for(let y = y_start; y < y_end; y++) { // 0; visina
-            //x, y
-            if(!isInCircle(x, y)) continue;
-            if(istHell(arr.slice(0 + 4*x + 4*sirina*y, 4 + 4*x + 4*sirina*y))) { // pixel svetel
-                //console.log(x, y, "ist hell");
-                colonyStart = y;
-                y++;
-                while(y < visina && istHell(arr.slice(0 + 4*x + 4*sirina*y, 4 + 4*x + 4*sirina*y))) { // pixel svetel
-                    setPixels(x, y, 255, 0, 0, 255);
-                    y++;
-                }
-                //console.log(x, y, "is not anymore hell.");
-                // pixel ni vec svetel
-                colonyEnd = y
-                sredina = Math.floor((colonyStart + colonyEnd)/2)
-                velikost = colonyEnd - colonyStart;
-                a[x][sredina] = a[x][sredina+1] = velikost;
-                setPixels(x, sredina, ...line_colour);
-                setPixels(x, sredina+1, ...line_colour);
-            }
-        }
-    }
-
-    for(let y = y_start; y < y_end; y++) { // 0; sirina
-        let colonyStart, colonyEnd;
-        for(let x = x_start; x < x_end; x++) { // 0; visina
-            //x, y
-            if(!isInCircle(x, y)) continue;
-            if(istHell(arr.slice(0 + 4*x + 4*sirina*y, 4 + 4*x + 4*sirina*y))) { // pixel svetel
-                //console.log(x, y, "ist hell");
-                colonyStart = x;
-                x++;
-                while(x < sirina && istHell(arr.slice(0 + 4*x + 4*sirina*y, 4 + 4*x + 4*sirina*y))) { // pixel svetel
-                    //setPixels(x, y, 255, 0, 0, 255);
-                    x++;
-                }
-                //console.log(x, y, "is not anymore hell.");
-                // pixel ni vec svetel
-                colonyEnd = x
-                sredina = Math.floor((colonyStart + colonyEnd)/2)
-                velikost = colonyEnd - colonyStart;
-                b[y][sredina] = b[y][sredina+1] = velikost;
-                setPixels(sredina, y, ...line_colour);
-                setPixels(sredina+1, y, ...line_colour);
-
-                if(a[sredina][y] > size_threshold && b[y][sredina] > size_threshold) {
-                    for(let i = -3; i < 5; i++) {
-                        for(let j = -3; j < 5; j++) {
-                            setPixels(sredina + i, y + j, ...centre_colour); // ...centre_colour // ...[Math.round(Math.random()*255), Math.round(Math.random()*255), Math.round(Math.random()*255), 255]
-                            a[sredina + i][y + j] = -1; // already checked
-                        }
-                    }
-                    colonies++;
-                }
-            }
-        }
-    }
-
-    console.log("Counted colonies: ", colonies);
-    document.getElementById("outputText").innerText = `Counted colonies: ${colonies} \n\nImage size: ${sirina}x${visina} px (original: ${slika.width}x${slika.height} px)`
-    
-
 
     
     let barve_temp_var_name = detectColour(sirina>>>1, visina>>>1, 100, 100, 4) // area must have area if we want to detect multiple colour groups. // Also, bitshift instead of /2 to prevent floats
     console.log(barve_temp_var_name);
     logColours(barve_temp_var_name);
     context.putImageData(imgdata, 0, 0);
-
+    
     //bgColour = barve_temp_var_name[2];
     //ccColour = barve_temp_var_name[3];
-
+    
     bgColour = barve_temp_var_name[0];
     ccColour = barve_temp_var_name[1];
     // Better would be to compare number of elements of each colour,
     // then take the most common colour as the bg and 2nd most common as the cc.
     detectPetriDish(bgColour);
+    
+    
+    count(slika);
 }
 
  L_threshold = 0.4;
@@ -421,6 +353,9 @@ function detectPetriDish(agarColour, repeat=0, xc=sirina>>>1, yc=visina>>>1) {
     petrijevka.bg = barve_temp_var_name[0].slice(0, -1);
     petrijevka.cc = barve_temp_var_name[1].slice(0, -1);
 
+    S = petrijevka.centre;
+    r = petrijevka.radius;
+
 
 
             
@@ -431,4 +366,86 @@ function detectPetriDish(agarColour, repeat=0, xc=sirina>>>1, yc=visina>>>1) {
 
     // REFRACTOR: Zakaj imam 4x isto kodo napisano? :face_palm:
     // Načeloma bi lahko hodil iz obeh smeri hkrati.
+}
+
+
+function count(slika) {
+        // arr = [r00, g00, b00, a00, r10, g10, b10, a10] // Apparently bomo analizirali po vrsticah najprej.
+    // r_xy = 0 + 4*x + 4*sirina*y
+
+    context = canvas.getContext('2d');
+    imgdata = context.getImageData(0, 0, sirina, visina); // TODO: Split canvas evenly among threads
+    arr_shallow = imgdata.data;
+
+
+
+    const x_start = Math.max(S[0]-r, 0),
+    y_start = Math.max(S[1]-r, 0),
+    x_end = Math.min(S[0]+r, sirina),
+    y_end = Math.min(S[1]+r, visina);
+    for(let x = x_start; x < x_end; x++) { // 0; sirina
+        let colonyStart, colonyEnd;
+        for(let y = y_start; y < y_end; y++) { // 0; visina
+            //x, y
+            if(!isInCircle(x, y)) continue;
+            if(istHell(arr.slice(0 + 4*x + 4*sirina*y, 4 + 4*x + 4*sirina*y))) { // pixel svetel
+                //console.log(x, y, "ist hell");
+                colonyStart = y;
+                y++;
+                while(y < visina && istHell(arr.slice(0 + 4*x + 4*sirina*y, 4 + 4*x + 4*sirina*y))) { // pixel svetel
+                    setPixels(x, y, 255, 0, 0, 255);
+                    y++;
+                }
+                //console.log(x, y, "is not anymore hell.");
+                // pixel ni vec svetel
+                colonyEnd = y
+                sredina = Math.floor((colonyStart + colonyEnd)/2)
+                velikost = colonyEnd - colonyStart;
+                a[x][sredina] = a[x][sredina+1] = velikost;
+                setPixels(x, sredina, ...line_colour);
+                setPixels(x, sredina+1, ...line_colour);
+            }
+        }
+    }
+
+    for(let y = y_start; y < y_end; y++) { // 0; sirina
+        let colonyStart, colonyEnd;
+        for(let x = x_start; x < x_end; x++) { // 0; visina
+            //x, y
+            if(!isInCircle(x, y)) continue;
+            if(istHell(arr.slice(0 + 4*x + 4*sirina*y, 4 + 4*x + 4*sirina*y))) { // pixel svetel
+                //console.log(x, y, "ist hell");
+                colonyStart = x;
+                x++;
+                while(x < sirina && istHell(arr.slice(0 + 4*x + 4*sirina*y, 4 + 4*x + 4*sirina*y))) { // pixel svetel
+                    //setPixels(x, y, 255, 0, 0, 255);
+                    x++;
+                }
+                //console.log(x, y, "is not anymore hell.");
+                // pixel ni vec svetel
+                colonyEnd = x
+                sredina = Math.floor((colonyStart + colonyEnd)/2)
+                velikost = colonyEnd - colonyStart;
+                b[y][sredina] = b[y][sredina+1] = velikost;
+                setPixels(sredina, y, ...line_colour);
+                setPixels(sredina+1, y, ...line_colour);
+
+                if(a[sredina][y] > size_threshold && b[y][sredina] > size_threshold) {
+                    for(let i = -3; i < 5; i++) {
+                        for(let j = -3; j < 5; j++) {
+                            setPixels(sredina + i, y + j, ...centre_colour); // ...centre_colour // ...[Math.round(Math.random()*255), Math.round(Math.random()*255), Math.round(Math.random()*255), 255]
+                            a[sredina + i][y + j] = -1; // already checked
+                        }
+                    }
+                    colonies++;
+                }
+            }
+        }
+    }
+    context.putImageData(imgdata, 0, 0);
+
+    console.log("Counted colonies: ", colonies);
+    document.getElementById("outputText").innerText = `Counted colonies: ${colonies} \n\nImage size: ${sirina}x${visina} px (original: ${slika.width}x${slika.height} px)`
+
+
 }
