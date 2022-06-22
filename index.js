@@ -449,7 +449,7 @@ function count() {
     context.putImageData(imgdata, 0, 0);
 
     console.log("Counted colonies: ", colonies);
-    document.getElementById("outputText").innerText = `Counted colonies: ${colonies} \n\nImage size: ${sirina}x${visina} px (original: ${slikaWidth}x${slikaHeight} px)`
+    document.getElementById("outputColonies").innerText = `Counted colonies: ${colonies} \n\nImage size: ${sirina}x${visina} px (original: ${slikaWidth}x${slikaHeight} px)`
 
 
 }
