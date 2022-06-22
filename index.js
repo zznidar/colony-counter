@@ -8,14 +8,14 @@ class Petrijevka {
 }
 
 var petrijevka = new Petrijevka();;
-
+var slikaWidth, slikaHeight;
 negative = false // If we want to analyse dark bacteria on light agar (e. g. HA in contrast to KA)
 function analyse(slika, init=true, resize=true, negate=false) {
     negative = negate;
     colonies = 0;
     console.log(slika.width, slika.height);
-    sirina = slika.width
-    visina = slika.height
+    sirina = slikaWidth = slika.width
+    visina = slikaHeight = slika.height
 
     if(init) {
         document.getElementById("slider_Sx").value = 0.5*(document.getElementById("slider_Sx").max = sirina);
@@ -70,7 +70,7 @@ function analyse(slika, init=true, resize=true, negate=false) {
     detectPetriDish(bgColour);
     
     
-    count(slika);
+    count();
 }
 
  L_threshold = 0.4;
@@ -108,7 +108,7 @@ function setPixels(x, y, r, g, b, a) {
 S = [500, 500];
 r = 250;
 function isInCircle(x, y) {
-    return(distance([x, y], S) < r)
+    return(distance([x, y], S) < r-3)
 }
 
 function distance(T1, T2) {
@@ -127,6 +127,10 @@ function distance(T1, T2) {
     zaznamo robno obmocje.
     Nato robnih 5 pixlov krajsamo za 1 po 1 pixel, dokler ne pridemo do dejanskega roba.
 */
+
+function isColourColony(yourColour) {
+    return((colourDistance(yourColour, petrijevka.cc) < colourDistance(yourColour, petrijevka.bg)) != negative);
+}
 
 function colourDistance(yourColour, targetColour, absolute=true) {
     let [r, g, b, a] = yourColour;
@@ -369,7 +373,7 @@ function detectPetriDish(agarColour, repeat=0, xc=sirina>>>1, yc=visina>>>1) {
 }
 
 
-function count(slika) {
+function count() {
         // arr = [r00, g00, b00, a00, r10, g10, b10, a10] // Apparently bomo analizirali po vrsticah najprej.
     // r_xy = 0 + 4*x + 4*sirina*y
 
@@ -388,11 +392,11 @@ function count(slika) {
         for(let y = y_start; y < y_end; y++) { // 0; visina
             //x, y
             if(!isInCircle(x, y)) continue;
-            if(istHell(arr.slice(0 + 4*x + 4*sirina*y, 4 + 4*x + 4*sirina*y))) { // pixel svetel
+            if(isColourColony(arr.slice(0 + 4*x + 4*sirina*y, 4 + 4*x + 4*sirina*y))) { // pixel svetel
                 //console.log(x, y, "ist hell");
                 colonyStart = y;
                 y++;
-                while(y < visina && istHell(arr.slice(0 + 4*x + 4*sirina*y, 4 + 4*x + 4*sirina*y))) { // pixel svetel
+                while(y < visina && isColourColony(arr.slice(0 + 4*x + 4*sirina*y, 4 + 4*x + 4*sirina*y))) { // pixel svetel
                     setPixels(x, y, 255, 0, 0, 255);
                     y++;
                 }
@@ -413,11 +417,11 @@ function count(slika) {
         for(let x = x_start; x < x_end; x++) { // 0; visina
             //x, y
             if(!isInCircle(x, y)) continue;
-            if(istHell(arr.slice(0 + 4*x + 4*sirina*y, 4 + 4*x + 4*sirina*y))) { // pixel svetel
+            if(isColourColony(arr.slice(0 + 4*x + 4*sirina*y, 4 + 4*x + 4*sirina*y))) { // pixel svetel
                 //console.log(x, y, "ist hell");
                 colonyStart = x;
                 x++;
-                while(x < sirina && istHell(arr.slice(0 + 4*x + 4*sirina*y, 4 + 4*x + 4*sirina*y))) { // pixel svetel
+                while(x < sirina && isColourColony(arr.slice(0 + 4*x + 4*sirina*y, 4 + 4*x + 4*sirina*y))) { // pixel svetel
                     //setPixels(x, y, 255, 0, 0, 255);
                     x++;
                 }
@@ -445,7 +449,7 @@ function count(slika) {
     context.putImageData(imgdata, 0, 0);
 
     console.log("Counted colonies: ", colonies);
-    document.getElementById("outputText").innerText = `Counted colonies: ${colonies} \n\nImage size: ${sirina}x${visina} px (original: ${slika.width}x${slika.height} px)`
+    document.getElementById("outputText").innerText = `Counted colonies: ${colonies} \n\nImage size: ${sirina}x${visina} px (original: ${slikaWidth}x${slikaHeight} px)`
 
 
 }
