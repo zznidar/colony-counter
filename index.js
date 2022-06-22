@@ -11,6 +11,7 @@ var petrijevka = new Petrijevka();;
 var slikaWidth, slikaHeight;
 negative = false // If we want to analyse dark bacteria on light agar (e. g. HA in contrast to KA)
 function analyse(slika, init=true, resize=true, negate=false) {
+    document.getElementById("outputColours").innerText = "Detected colours: \n";
     negative = negate;
     colonies = 0;
     console.log(slika.width, slika.height);
@@ -128,8 +129,9 @@ function distance(T1, T2) {
     Nato robnih 5 pixlov krajsamo za 1 po 1 pixel, dokler ne pridemo do dejanskega roba.
 */
 
+const DISTANCE_RATIO = 1.1;
 function isColourColony(yourColour) {
-    return((colourDistance(yourColour, petrijevka.cc) < colourDistance(yourColour, petrijevka.bg)) != negative);
+    return((colourDistance(yourColour, petrijevka.bg) / colourDistance(yourColour, petrijevka.cc) > DISTANCE_RATIO) != negative);
 }
 
 function colourDistance(yourColour, targetColour, absolute=true) {
@@ -227,7 +229,7 @@ function detectColour(x, y, width, height, nGroups=2) {
     console.log("%c Colour of colonies on agar-coloured background", `color: rgb(${groups[0].slice(0,3)}); background-color: rgb(${groups[1].slice(0,3)})`);
     groups = groups.map(x => x.map(y => Math.round(y)));
     groups.sort((a,b) => b[4]-a[4])
-    document.getElementById("outputText").insertAdjacentHTML("beforeend", `<br>Colour of colonies on agar-coloured background: <span style="color: rgb(${groups[1].slice(0,3)}); background-color: rgb(${groups[0].slice(0,3)}); font-weight: bold;">${groups[1].slice(0,3)}</span>`);
+    document.getElementById("outputColours").insertAdjacentHTML("beforeend", `<br>Colour of colonies on agar-coloured background: <span style="color: rgb(${groups[1].slice(0,3)}); background-color: rgb(${groups[0].slice(0,3)}); font-weight: bold;">${groups[1].slice(0,3)}</span>`);
     return(groups)
 
     // If there's very few colonies, we don't get their colour. 
