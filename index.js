@@ -11,7 +11,7 @@ var petrijevka = new Petrijevka();;
 var slikaWidth, slikaHeight;
 negative = false // If we want to analyse dark bacteria on light agar (e. g. HA in contrast to KA)
 function analyse(slika, init=true, resize=true, negate=false) {
-    document.getElementById("outputColours").innerText = "Detected colours: \n";
+    document.getElementById("outputColours").innerText = "Detected colours: ";
     negative = negate;
     colonies = 0;
     console.log(slika.width, slika.height);
@@ -451,7 +451,7 @@ function count() {
     context.putImageData(imgdata, 0, 0);
 
     console.log("Counted colonies: ", colonies);
-    document.getElementById("outputColonies").innerText = `Counted colonies: ${colonies} \n\nImage size: ${sirina}x${visina} px (original: ${slikaWidth}x${slikaHeight} px)`
+    document.getElementById("outputColonies").innerHTML = `Counted colonies: <b>${colonies}</b> <br><br>Image size: ${sirina}x${visina} px (original: ${slikaWidth}x${slikaHeight} px)`
 
 
 }
