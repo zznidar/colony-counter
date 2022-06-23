@@ -455,3 +455,7 @@ function count() {
 
 
 }
+
+// Plan: auto-detect colony size (idk, lerp 1/3 from min size to modus/mediana?)
+// then: add only a checkbox "Auto". If auto, let everything automatic (default)
+//       Sliders should be auto-set to these values. If unticked, use slider values.

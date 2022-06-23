@@ -8,6 +8,7 @@
     <title>Colony Counter</title>
     <meta name="description" content="Automatically count colonies from a photo of your Petri dish.">
 
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <label for="input">Pick your Petri dish: </label>
@@ -18,32 +19,39 @@
     <div>
         <p id="outputText"><span id="outputColours"></span><br><span id="outputColonies"></span></p>
     </div>
+
+    
     <div id="settings">
-        <label for="slider_L">Lightness threshold: </label>
-        <input type="range" min="0.01" max="0.99" value="0.4" step="0.01" class="slider" name="slider_L" id="slider_L">
+        <label for="check_auto">Auto-detect: </label>
+        <input type="checkbox" class="slider" name="check_auto" id="check_auto" checked>
 
-        <label for="slider_size">Size threshold: </label>
-        <input type="range" min="1" max="100" value="10" step="1" class="slider" name="slider_size" id="slider_size">
+        <!-- div for manual settings (hide them when auto is checked)-->
+        <div id="settingsManual" class="hidden">
+            <label for="slider_L">Lightness threshold: </label>
+            <input type="range" min="0.01" max="0.99" value="0.4" step="0.01" class="slider" name="slider_L" id="slider_L">
 
-        <label for="check_neg">Dark colonies on bright agar?: </label>
-        <input type="checkbox" class="slider" name="check_neg" id="check_neg">
+            <label for="slider_size">Size threshold: </label>
+            <input type="range" min="1" max="100" value="10" step="1" class="slider" name="slider_size" id="slider_size">
 
-        <br>
+            <label for="check_neg">Dark colonies on bright agar?: </label>
+            <input type="checkbox" class="slider" name="check_neg" id="check_neg">
 
-        <label for="slider_Sx">Circle centre x: </label>
-        <input type="range" min="0" max="1080" value="500" step="1" class="slider" name="slider_Sx" id="slider_Sx">
+            <br>
 
-        <label for="slider_Sy">Circle centre y: </label>
-        <input type="range" min="0" max="1080" value="500" step="1" class="slider" name="slider_Sy" id="slider_Sy">
+            <label for="slider_Sx">Circle centre x: </label>
+            <input type="range" min="0" max="1080" value="500" step="1" class="slider" name="slider_Sx" id="slider_Sx">
 
-        <label for="slider_r">Circle radius: </label>
-        <input type="range" min="0" max="500" value="400" step="1" class="slider" name="slider_r" id="slider_r">
+            <label for="slider_Sy">Circle centre y: </label>
+            <input type="range" min="0" max="1080" value="500" step="1" class="slider" name="slider_Sy" id="slider_Sy">
 
-        <br>
+            <label for="slider_r">Circle radius: </label>
+            <input type="range" min="0" max="500" value="400" step="1" class="slider" name="slider_r" id="slider_r">
 
-        <label for="check_HQ">Analyse full-quality image (slow): </label>
-        <input type="checkbox" class="slider" name="check_HQ" id="check_HQ">
+            <br>
 
+            <label for="check_HQ">Analyse full-quality image (slow): </label>
+            <input type="checkbox" class="slider" name="check_HQ" id="check_HQ">
+        </div>
     </div>
 
     <footer style="color: gray;">
@@ -86,6 +94,15 @@
         // Handle settings changes
         document.getElementById("settings").addEventListener("change", function(e) {
             console.log(e.target.value);
+            auto = check_auto.checked;
+
+            if(auto) {
+                document.getElementById("settingsManual").classList.add("hidden");
+            } else {
+                document.getElementById("settingsManual").classList.remove("hidden");
+
+            }
+
             L_threshold = slider_L.value;
             size_threshold = slider_size.value;
             S = [slider_Sx.value, slider_Sy.value];
