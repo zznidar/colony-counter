@@ -107,7 +107,8 @@
             size_threshold = slider_size.value;
             S = [slider_Sx.value, slider_Sy.value];
             r = slider_r.value;
-            analyse(base_image, false, !check_HQ.checked, check_neg.checked);
+            analyse(base_image, false, !check_HQ.checked, check_neg.checked, auto);
+            // This function should (if set to auto) return auto-detected values, so we can set the sliders accordingly.
         })
 
     </script>

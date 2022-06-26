@@ -10,7 +10,7 @@ class Petrijevka {
 var petrijevka = new Petrijevka();;
 var slikaWidth, slikaHeight;
 negative = false // If we want to analyse dark bacteria on light agar (e. g. HA in contrast to KA)
-function analyse(slika, init=true, resize=true, negate=false) {
+function analyse(slika, init=true, resize=true, negate=false, auto=true) {
     document.getElementById("outputColours").innerText = "Detected colours: ";
     negative = negate;
     colonies = 0;
@@ -78,6 +78,11 @@ function analyse(slika, init=true, resize=true, negate=false) {
  size_threshold = 10;
 const line_colour = [0, 0, 0, 255];
 const centre_colour = [3, 219, 252, 255]
+const centre_colours = [[0,255,0,255], [0,0,255,255], [182, 182, 229,255], [255,255,255,255], [127,127,127,255], [225, 182, 229,255], [233, 0, 255,255], [255, 175, 136,255]];
+for(let i = 0; i < centre_colours.length; i++) {
+    let t = centre_colours[i];
+    console.log(`%c${i+1}`, `background-color: rgb(${t[0]}, ${t[1]}, ${t[2]}); font-weight: bold;`);
+}
 
 function istHell(rgba) {
     // Convert RGB to HSL: https://www.rapidtables.com/convert/color/rgb-to-hsl.html
@@ -110,6 +115,10 @@ S = [500, 500];
 r = 250;
 function isInCircle(x, y) {
     return(distance([x, y], S) < r-3)
+}
+
+function isFarFromEdge(x, y) {
+    return(distance([x, y], S) < (r>>>1))
 }
 
 function distance(T1, T2) {
@@ -383,7 +392,8 @@ function count() {
     imgdata = context.getImageData(0, 0, sirina, visina); // TODO: Split canvas evenly among threads
     arr_shallow = imgdata.data;
 
-
+    colonySizes = [];
+    size_threshold = 1;
 
     const x_start = Math.max(S[0]-r, 0),
     y_start = Math.max(S[1]-r, 0),
@@ -398,6 +408,7 @@ function count() {
                 //console.log(x, y, "ist hell");
                 colonyStart = y;
                 y++;
+                // TODO: while y < y_end to prevent spilling over the dish. Check it doesn't produce false-positives then.
                 while(y < visina && isColourColony(arr.slice(0 + 4*x + 4*sirina*y, 4 + 4*x + 4*sirina*y))) { // pixel svetel
                     setPixels(x, y, 255, 0, 0, 255);
                     y++;
@@ -437,13 +448,17 @@ function count() {
                 setPixels(sredina+1, y, ...line_colour);
 
                 if(a[sredina][y] > size_threshold && b[y][sredina] > size_threshold) {
+                    test = centre_colours[velikost-1] ?? centre_colour;
                     for(let i = -3; i < 5; i++) {
                         for(let j = -3; j < 5; j++) {
-                            setPixels(sredina + i, y + j, ...centre_colour); // ...centre_colour // ...[Math.round(Math.random()*255), Math.round(Math.random()*255), Math.round(Math.random()*255), 255]
+                            setPixels(sredina + i, y + j, ...test); // ...centre_colour // ...[Math.round(Math.random()*255), Math.round(Math.random()*255), Math.round(Math.random()*255), 255]
                             a[sredina + i][y + j] = -1; // already checked
                         }
                     }
                     colonies++;
+
+                    // Only push to ai-sizes if near centre of the circle. To avoid detecting edges as colonies. 
+                    if(isFarFromEdge(sredina, y)) colonySizes.push(velikost);
                 }
             }
         }
@@ -453,6 +468,21 @@ function count() {
     console.log("Counted colonies: ", colonies);
     document.getElementById("outputColonies").innerHTML = `Counted colonies: <b>${colonies}</b> <br><br>Image size: ${sirina}x${visina} px (original: ${slikaWidth}x${slikaHeight} px)`
 
+    // https://www.tutorialspoint.com/building-frequency-map-of-all-the-elements-in-an-array-javascript
+    const getFrequency = (array) => {
+        const map = {};
+        array.forEach(item => {
+           if(map[item]){
+              map[item]++;
+           }else{
+              map[item] = 1;
+           }
+        });
+        return map;
+     };
+     
+     console.log(colonySizes);
+     console.log(getFrequency(colonySizes));
 
 }
 
