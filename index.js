@@ -408,12 +408,15 @@ function count() {
         // arr = [r00, g00, b00, a00, r10, g10, b10, a10] // Apparently bomo analizirali po vrsticah najprej.
     // r_xy = 0 + 4*x + 4*sirina*y
 
+    S = petrijevka.centre;
+    r = petrijevka.radius;
+
     context = canvas.getContext('2d');
     imgdata = context.getImageData(0, 0, sirina, visina); // TODO: Split canvas evenly among threads
     arr_shallow = imgdata.data;
 
     colonySizes = [];
-    size_threshold = 1;
+    size_threshold = petrijevka.size;
     colonies = 0;
 
     const x_start = Math.max(S[0]-r, 0),
