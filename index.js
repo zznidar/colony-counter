@@ -29,6 +29,10 @@ var imgdata, arr_shallow, arr; // "global" vars; also put this into Canvas class
 
 negative = false // If we want to analyse dark bacteria on light agar (e. g. HA in contrast to KA)
 
+// If debug, draw all rectangles and circles
+var debug = (new URL(window.location.href)).searchParams.get("debug") !== null;
+console.log("Debug: ", debug);
+
 function initialise(slika) {
     console.warn("Started");
     document.getElementById("outputColours").innerText = "Detected colours: ";
@@ -89,6 +93,19 @@ function analyse(auto=true, settings={}) {
         petrijevka.centre = settings?.S ?? petrijevka.centre;
         petrijevka.radius = settings?.r ?? petrijevka.radius;
         petrijevka.size = settings?.size ?? petrijevka.size;
+        negative = settings?.dark ?? negative;
+    }
+
+    if(!debug) {
+        // If it were debug, the circles would be drawn so wie so
+        let ctx = canvas.getContext("2d");
+        ctx.beginPath();
+        ctx.arc(...petrijevka.centre, petrijevka.radius, 0, 2 * Math.PI);
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = "#00ff00";
+        ctx.stroke(); 
+        ctx.fillStyle = "#00ff00";
+        ctx.fillRect(...petrijevka.centre, 12, 12);
     }
     return(petrijevka)
 }
@@ -214,15 +231,17 @@ function detectColour(x, y, width, height, nGroups=2) {
     //TODO: Do not use pre-defined groups. Instead, create a new group (as long as there are fewer than nGroups groups) only when colour distance is large enough (greater than 20, idk)
     
     let ctx = canvas.getContext("2d");
-    ctx.beginPath();
-    ctx.rect(x, y, width, height);
-    ctx.lineWidth = 5;
-    ctx.strokeStyle = "yellow";
-    ctx.stroke();
+    if(debug) {    
+        ctx.beginPath();
+        ctx.rect(x, y, width, height);
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = "yellow";
+        ctx.stroke();
+    }
 
     for(let i = x; i < x + width; i++) {
         for(let j = y; j < y + height; j++) {
-            if(j < (y+2) || j > (y + width-2) || i < (x+2) || i > (x + height-2)) setPixels(i, j, 255, 255, 0, 255);
+            if((j < (y+2) || j > (y + width-2) || i < (x+2) || i > (x + height-2)) && debug) setPixels(i, j, 255, 255, 0, 255);
             let [r, g, b, a] = arr.slice(0 + 4*i + 4*sirina*j, 4 + 4*i + 4*sirina*j);
             if(!groups.length) {
                 groups.push([r, g, b, a, 1]);
@@ -277,7 +296,7 @@ function detectPetriDish(agarColour, repeat=0, xc=sirina>>>1, yc=visina>>>1) {
         let barvus = getAverageColour(x, yc, pet, 1);
         if(colourDistance(barvus, agarColour) < 20) {
             console.log(x, barvus, colourDistance(barvus, agarColour));
-            ctx.fillRect(x, yc, 4*pet, 4*pet)
+            if(debug) ctx.fillRect(x, yc, 4*pet, 4*pet)
             x0 = x;
 
             if(pet == 1) break;
@@ -294,7 +313,7 @@ function detectPetriDish(agarColour, repeat=0, xc=sirina>>>1, yc=visina>>>1) {
         let barvus = getAverageColour(x, yc, pet, 1);
         if(colourDistance(barvus, agarColour) < 20) {
             console.log(x, barvus, colourDistance(barvus, agarColour));
-            ctx.fillRect(x, yc, 4*pet, 4*pet)
+            if(debug) ctx.fillRect(x, yc, 4*pet, 4*pet)
             x1 = x;
 
             if(pet == 1) break;
@@ -311,7 +330,7 @@ function detectPetriDish(agarColour, repeat=0, xc=sirina>>>1, yc=visina>>>1) {
         let barvus = getAverageColour(xc, y, 1, pet);
         if(colourDistance(barvus, agarColour) < 20) {
             console.log(y, barvus, colourDistance(barvus, agarColour));
-            ctx.fillRect(xc, y, 4*pet, 4*pet)
+            if(debug) ctx.fillRect(xc, y, 4*pet, 4*pet)
             y0 = y;
 
             if(pet == 1) break;
@@ -328,7 +347,7 @@ function detectPetriDish(agarColour, repeat=0, xc=sirina>>>1, yc=visina>>>1) {
         let barvus = getAverageColour(xc, y, 1, pet);
         if(colourDistance(barvus, agarColour) < 20) {
             console.log(y, barvus, colourDistance(barvus, agarColour));
-            ctx.fillRect(xc, y, 4*pet, 4*pet);
+            if(debug) ctx.fillRect(xc, y, 4*pet, 4*pet);
             y1 = y;
 
             if(pet == 1) break;
@@ -355,19 +374,21 @@ function detectPetriDish(agarColour, repeat=0, xc=sirina>>>1, yc=visina>>>1) {
         radius = radius_temp;
         console.log("Centre", ...centre, "radius", radius);
         
-        ctx.beginPath();
-        ctx.arc(...centre, radius, 0, 2 * Math.PI);
-        ctx.lineWidth = 5;
-        ctx.strokeStyle = edgeColours[repeat];
-        ctx.stroke(); 
-        ctx.fillStyle = edgeColours[repeat];
-        ctx.fillRect(...centre, 12, 12);
-        
-        if(repeat < 6) {
-            console.log("Repeating.")
-            detectPetriDish(agarColour, ++repeat, xc, yc);
-            return("repeating");
+        if(debug) {
+            ctx.beginPath();
+            ctx.arc(...centre, radius, 0, 2 * Math.PI);
+            ctx.lineWidth = 5;
+            ctx.strokeStyle = edgeColours[repeat];
+            ctx.stroke(); 
+            ctx.fillStyle = edgeColours[repeat];
+            ctx.fillRect(...centre, 12, 12);
         }
+            
+            if(repeat < 6) {
+                console.log("Repeating.")
+                detectPetriDish(agarColour, ++repeat, xc, yc);
+                return("repeating");
+            }
     }
     
     console.log("Krožnica: ", ...centre, radius);
@@ -472,7 +493,7 @@ function count() {
                 setPixels(sredina+1, y, ...line_colour);
 
                 if(a[sredina][y] > size_threshold && b[y][sredina] > size_threshold) {
-                    test = centre_colours[velikost-1] ?? centre_colour;
+                    test = debug ? centre_colours[velikost-1] ?? centre_colour : centre_colour;
                     for(let i = -3; i < 5; i++) {
                         for(let j = -3; j < 5; j++) {
                             setPixels(sredina + i, y + j, ...test); // ...centre_colour // ...[Math.round(Math.random()*255), Math.round(Math.random()*255), Math.round(Math.random()*255), 255]

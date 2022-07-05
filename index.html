@@ -90,6 +90,7 @@
 
                     // Always enable auto-detect when chaning pictures
                     check_auto.checked = true;
+                    check_neg.checked = false;
                     settings.dispatchEvent(new Event("change"));
 
                     // Now we don't even need to call other functions as the change event will trigger the analysis.
