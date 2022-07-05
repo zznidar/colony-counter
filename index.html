@@ -108,8 +108,10 @@
 
             }
 
-            initialise(base_image);
+            let sizes = initialise(base_image);
             console.log("Initialised");
+            [slider_Sx.max, slider_Sy.max] = [sizes.sirina, sizes.visina];
+            slider_r.max = Math.max(sizes.visina, sizes.sirina)>>>1;
 
             let settings = {
                 "S": [slider_Sx.value, slider_Sy.value],
@@ -121,6 +123,8 @@
             };
 
             let petrijevka = analyse(auto, settings);
+            console.log(petrijevka);
+            console.log(petrijevka.centre ?? [slider_Sx.value, slider_Sy.value], petrijevka.radius ?? slider_r.value, petrijevka.size ?? slider_size.value);
 
             [slider_Sx.value, slider_Sy.value] = petrijevka.centre ?? [slider_Sx.value, slider_Sy.value]; // this won't work if [undef, undef]
             slider_r.value = petrijevka.radius ?? slider_r.value;

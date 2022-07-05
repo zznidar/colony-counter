@@ -69,6 +69,7 @@ function initialise(slika) {
     arr_shallow = imgdata.data;
     arr = Uint8ClampedArray.from(arr_shallow) // This shall not be modified to allow multiple-pass processing.
 
+    return({"visina": visina, "sirina": sirina, "resized": sirina != slikaWidth})
 }
 
 function analyse(auto=true, settings={}) {
