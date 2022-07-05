@@ -87,7 +87,12 @@
                 base_image.onload = function(){
                     URL.revokeObjectURL(base_image.src)
                     check_HQ.checked = false;
-                    analyse(this, true, !check_HQ.checked, check_neg.checked);
+
+                    // Always enable auto-detect when chaning pictures
+                    check_auto.checked = true;
+                    settings.dispatchEvent(new Event("change"));
+
+                    // Now we don't even need to call other functions as the change event will trigger the analysis.
                 }
         }
 
@@ -103,12 +108,27 @@
 
             }
 
-            L_threshold = slider_L.value;
-            size_threshold = slider_size.value;
-            S = [slider_Sx.value, slider_Sy.value];
-            r = slider_r.value;
-            analyse(base_image, false, !check_HQ.checked, check_neg.checked, auto);
-            // This function should (if set to auto) return auto-detected values, so we can set the sliders accordingly.
+            initialise(base_image);
+            console.log("Initialised");
+
+            let settings = {
+                "S": [slider_Sx.value, slider_Sy.value],
+                "r": slider_r.value,
+                "dark": check_neg.checked,
+                "auto": auto,
+                "size": slider_size.value,
+                "L": slider_L.value
+            };
+
+            let petrijevka = analyse(auto, settings);
+
+            [slider_Sx.value, slider_Sy.value] = petrijevka.centre ?? [slider_Sx.value, slider_Sy.value]; // this won't work if [undef, undef]
+            slider_r.value = petrijevka.radius ?? slider_r.value;
+            slider_size.value = petrijevka.size ?? slider_size.value;
+            // set the two colour pickers once they start to exist
+
+            count()
+
         })
 
     </script>

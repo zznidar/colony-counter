@@ -1,37 +1,51 @@
 class Petrijevka {
-    constructor(Sx=undefined, Sy=undefined, r=undefined, bgColour=undefined, colonyColour=undefined) {
+    constructor(Sx=undefined, Sy=undefined, r=undefined, bgColour=undefined, colonyColour=undefined, sizeThreshold=1) {
         this.centre = [Sx, Sy];
         this.radius = r;
         this.bg = bgColour;
         this.cc = colonyColour;
+        this.size = sizeThreshold;
     }
 }
 
-var petrijevka = new Petrijevka();;
-var slikaWidth, slikaHeight;
+/*
+// Apparently we don't even need this now as the vars are global
+class Platno {
+    constructor(sirina, visina, imgdata, arr_shallow, arr) {
+        this.sirina = sirina;
+        this.visina = visina;
+        this.imgdata = imgdata;
+        this.arr_shallow = arr_shallow;
+        this.arr = arr;
+    }
+}
+*/
+
+var petrijevka = new Petrijevka();
+var slikaWidth, slikaHeight; // original size
+
+var sirina, visina; // resized size; we should set this into some class
+var imgdata, arr_shallow, arr; // "global" vars; also put this into Canvas class or sth
+
 negative = false // If we want to analyse dark bacteria on light agar (e. g. HA in contrast to KA)
-function analyse(slika, init=true, resize=true, negate=false, auto=true) {
+
+function initialise(slika) {
+    console.warn("Started");
     document.getElementById("outputColours").innerText = "Detected colours: ";
-    negative = negate;
     colonies = 0;
     console.log(slika.width, slika.height);
     sirina = slikaWidth = slika.width
     visina = slikaHeight = slika.height
 
-    if(init) {
-        document.getElementById("slider_Sx").value = 0.5*(document.getElementById("slider_Sx").max = sirina);
-        document.getElementById("slider_Sy").value = 0.5*(document.getElementById("slider_Sy").max = visina);
-        document.getElementById("slider_r").value = 0.5*(document.getElementById("slider_r").max = Math.round(Math.max(sirina, visina)/2));
-    }
-    
     // Resize image if greater than 2000x2000 px
+    resize = true;
     if((sirina > 2000 || visina > 2000) && resize) {
         console.log("resizing", sirina, visina, "divide by 2");
-        sirina = Math.floor(sirina/2);
-        visina = Math.floor(visina/2);
-        r = Math.floor(r/2);
-        S[0] = Math.floor(S[0]/2);
-        S[1] = Math.floor(S[1]/2);
+        sirina = sirina>>>1;
+        visina = visina>>>1;
+        r = r>>>1;
+        S[0] = S[0]>>>1;
+        S[1] = S[1]>>>1;
     }
 
     canvas.width = sirina
@@ -55,24 +69,29 @@ function analyse(slika, init=true, resize=true, negate=false, auto=true) {
     arr_shallow = imgdata.data;
     arr = Uint8ClampedArray.from(arr_shallow) // This shall not be modified to allow multiple-pass processing.
 
-    
+}
+
+function analyse(auto=true, settings={}) {
     let barve_temp_var_name = detectColour(sirina>>>1, visina>>>1, 100, 100, 4) // area must have area if we want to detect multiple colour groups. // Also, bitshift instead of /2 to prevent floats
     console.log(barve_temp_var_name);
     logColours(barve_temp_var_name);
     context.putImageData(imgdata, 0, 0);
-    
-    //bgColour = barve_temp_var_name[2];
-    //ccColour = barve_temp_var_name[3];
-    
+
     bgColour = barve_temp_var_name[0];
     ccColour = barve_temp_var_name[1];
     // Better would be to compare number of elements of each colour,
     // then take the most common colour as the bg and 2nd most common as the cc.
     detectPetriDish(bgColour);
-    
-    
-    count();
+    // PetriDish detection also sets actual bg, cc colours to the Petrijevka class. 
+
+    if(!auto) {
+        petrijevka.centre = settings?.S ?? petrijevka.centre;
+        petrijevka.radius = settings?.r ?? petrijevka.radius;
+        petrijevka.size = settings?.size ?? petrijevka.size;
+    }
+    return(petrijevka)
 }
+
 
  L_threshold = 0.4;
  size_threshold = 10;
@@ -394,6 +413,7 @@ function count() {
 
     colonySizes = [];
     size_threshold = 1;
+    colonies = 0;
 
     const x_start = Math.max(S[0]-r, 0),
     y_start = Math.max(S[1]-r, 0),
@@ -484,6 +504,7 @@ function count() {
      console.log(colonySizes);
      console.log(getFrequency(colonySizes));
 
+     return(colonies);
 }
 
 // Plan: auto-detect colony size (idk, lerp 1/3 from min size to modus/mediana?)
