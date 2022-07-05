@@ -96,7 +96,7 @@ function analyse(auto=true, settings={}) {
         negative = settings?.dark ?? negative;
     }
 
-    if(!debug) {
+    //if(!debug) {
         // If it were debug, the circles would be drawn so wie so
         let ctx = canvas.getContext("2d");
         ctx.beginPath();
@@ -106,7 +106,7 @@ function analyse(auto=true, settings={}) {
         ctx.stroke(); 
         ctx.fillStyle = "#00ff00";
         ctx.fillRect(...petrijevka.centre, 12, 12);
-    }
+    //}
     return(petrijevka)
 }
 
