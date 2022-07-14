@@ -16,7 +16,10 @@
     <br>
     <canvas id="canvas" width="1080" height="1080" style="max-height: calc(100vh - 16px);max-width: calc(100vw - 16px);"></canvas>
 
+    <p class="busy hidden" id="busy">Please wait, counting&nbsp;...</p>
+
     <div>
+        <p>Detected colours: <span id="colourPresentation" style="background-color: #1055dd; color: #ffdd34; font-size:3em;vertical-align: middle;">&#9679;</span></p>
         <p id="outputText"><span id="outputColours"></span><br><span id="outputColonies"></span></p>
     </div>
 
@@ -107,6 +110,7 @@
 
         // Handle settings changes
         document.getElementById("settings").addEventListener("change", function(e) {
+            busy.classList.remove("hidden");
             console.log(e.target.value);
             auto = check_auto.checked;
 
@@ -142,12 +146,13 @@
             console.warn(petrijevka);
             console.warn(petrijevka.bg, petrijevka.cc);
             console.warn(rgbToHex(...petrijevka.bg));
-            bgc.style.color = bgc.dataset.colour = rgbToHex(...petrijevka.bg);
-            cc.style.color = cc.dataset.colour = rgbToHex(...petrijevka.cc);
+            colourPresentation.style.backgroundColor = bgc.style.color = bgc.dataset.colour = rgbToHex(...petrijevka.bg);
+            colourPresentation.style.color = cc.style.color = cc.dataset.colour = rgbToHex(...petrijevka.cc);
             // set the two colour pickers once they start to exist
 
-            count()
-
+            setTimeout(() => {count(); busy.classList.add("hidden");}, 100);
+            //count()
+            //busy.classList.add("hidden");
         })
 
     </script>
@@ -225,6 +230,8 @@
             changingState = null;
             area.removeEventListener("pointermove", handlePointerMove);
             area.removeEventListener("pointerup", handlePointerUp);
+            bgc.classList.remove("changing");
+            cc.classList.remove("changing");
             settings.dispatchEvent(new Event("change"));
         }
 
