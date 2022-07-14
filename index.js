@@ -94,6 +94,8 @@ function analyse(auto=true, settings={}) {
         petrijevka.radius = settings?.r ?? petrijevka.radius;
         petrijevka.size = settings?.size ?? petrijevka.size;
         negative = settings?.dark ?? negative;
+        petrijevka.bg = settings?.bg ?? petrijevka.bg;
+        petrijevka.cc = settings?.cc ?? petrijevka.cc;
     }
 
     //if(!debug) {
@@ -145,6 +147,10 @@ function setPixels(x, y, r, g, b, a) {
     arr_shallow[2 + 4*x + 4*sirina*y] = b;
     arr_shallow[3 + 4*x + 4*sirina*y] = a;
 
+}
+
+function getArrPixelColour(x, y) {
+    return([arr[0 + 4*x + 4*sirina*y], arr[1 + 4*x + 4*sirina*y], arr[2 + 4*x + 4*sirina*y], arr[3 + 4*x + 4*sirina*y]]);
 }
 
 // circle
