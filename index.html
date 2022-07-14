@@ -8,6 +8,7 @@
     <title>Colony Counter</title>
     <meta name="description" content="Automatically count colonies from a photo of your Petri dish.">
 
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <label for="input">Pick your Petri dish: </label>
@@ -15,35 +16,53 @@
     <br>
     <canvas id="canvas" width="1080" height="1080" style="max-height: calc(100vh - 16px);max-width: calc(100vw - 16px);"></canvas>
 
+    <p class="busy hidden" id="busy">Please wait, counting&nbsp;...</p>
+
     <div>
-        <p id="outputText">Colonies counted: </p>
+        <p>Detected colours: <span id="colourPresentation" style="background-color: #1055dd; color: #ffdd34; font-size:3em;vertical-align: middle;">&#9679;</span> <span id="outputColonies" style="font-size:1.1em;"></span></p>
+        <p id="outputText"><span id="outputColours"></span><br></p>
     </div>
+
+    
     <div id="settings">
-        <label for="slider_L">Lightness threshold: </label>
-        <input type="range" min="0.01" max="0.99" value="0.4" step="0.01" class="slider" name="slider_L" id="slider_L">
+        <label for="check_auto">Auto-detect: </label>
+        <input type="checkbox" class="slider" name="check_auto" id="check_auto" checked>
 
-        <label for="slider_size">Size threshold: </label>
-        <input type="range" min="1" max="100" value="10" step="1" class="slider" name="slider_size" id="slider_size">
+        <!-- div for manual settings (hide them when auto is checked)-->
+        <div id="settingsManual" class="hidden">
 
-        <label for="check_neg">Dark colonies on bright agar?: </label>
-        <input type="checkbox" class="slider" name="check_neg" id="check_neg">
+            <!--
+            <label for="slider_L">Lightness threshold: </label>
+            <input type="range" min="0.01" max="0.99" value="0.4" step="0.01" class="slider" name="slider_L" id="slider_L">
+            -->
+            <label for="bgc">Background colour, click to change -></label>
+            <span style="color:#ffdd34; font-size:2em;vertical-align: middle;" name="bgc" id="bgc">&#9724;</span>
+            <label for="cc">Colour of colonies, click to change -></label>
+            <span style="color:#1055dd; font-size:2em;vertical-align: middle;" name="cc" id="cc">&#9679;</span>
 
-        <br>
 
-        <label for="slider_Sx">Circle centre x: </label>
-        <input type="range" min="0" max="1080" value="500" step="1" class="slider" name="slider_Sx" id="slider_Sx">
+            <label for="slider_size">Size threshold: </label>
+            <input type="range" min="1" max="100" value="10" step="1" class="slider" name="slider_size" id="slider_size">
 
-        <label for="slider_Sy">Circle centre y: </label>
-        <input type="range" min="0" max="1080" value="500" step="1" class="slider" name="slider_Sy" id="slider_Sy">
+            <label for="check_neg">Dark colonies on bright agar?: </label>
+            <input type="checkbox" class="slider" name="check_neg" id="check_neg">
 
-        <label for="slider_r">Circle radius: </label>
-        <input type="range" min="0" max="500" value="400" step="1" class="slider" name="slider_r" id="slider_r">
+            <br>
 
-        <br>
+            <label for="slider_Sx">Circle centre x: </label>
+            <input type="range" min="0" max="1080" value="500" step="1" class="slider" name="slider_Sx" id="slider_Sx">
 
-        <label for="check_HQ">Analyse full-quality image (slow): </label>
-        <input type="checkbox" class="slider" name="check_HQ" id="check_HQ">
+            <label for="slider_Sy">Circle centre y: </label>
+            <input type="range" min="0" max="1080" value="500" step="1" class="slider" name="slider_Sy" id="slider_Sy">
 
+            <label for="slider_r">Circle radius: </label>
+            <input type="range" min="0" max="500" value="400" step="1" class="slider" name="slider_r" id="slider_r">
+
+            <br>
+
+            <label for="check_HQ">Analyse full-quality image (slow): </label>
+            <input type="checkbox" class="slider" name="check_HQ" id="check_HQ">
+        </div>
     </div>
 
     <footer style="color: gray;">
@@ -79,19 +98,144 @@
                 base_image.onload = function(){
                     URL.revokeObjectURL(base_image.src)
                     check_HQ.checked = false;
-                    analyse(this, true, !check_HQ.checked, check_neg.checked);
+
+                    // Always enable auto-detect when chaning pictures
+                    check_auto.checked = true;
+                    check_neg.checked = false;
+                    settings.dispatchEvent(new Event("change"));
+
+                    // Now we don't even need to call other functions as the change event will trigger the analysis.
                 }
         }
 
         // Handle settings changes
         document.getElementById("settings").addEventListener("change", function(e) {
+            busy.classList.remove("hidden");
             console.log(e.target.value);
-            L_threshold = slider_L.value;
-            size_threshold = slider_size.value;
-            S = [slider_Sx.value, slider_Sy.value];
-            r = slider_r.value;
-            analyse(base_image, false, !check_HQ.checked, check_neg.checked);
+            auto = check_auto.checked;
+
+            if(auto) {
+                document.getElementById("settingsManual").classList.add("hidden");
+            } else {
+                document.getElementById("settingsManual").classList.remove("hidden");
+
+            }
+
+            sizes = initialise(base_image);
+            console.log("Initialised");
+            [slider_Sx.max, slider_Sy.max] = [sizes.sirina, sizes.visina];
+            slider_r.max = Math.max(sizes.visina, sizes.sirina)>>>1;
+
+            let settings = {
+                "S": [slider_Sx.value, slider_Sy.value],
+                "r": slider_r.value,
+                "dark": check_neg.checked,
+                "auto": auto,
+                "size": slider_size.value,
+                "bg": hexToRgb(bgc.dataset.colour),
+                "cc": hexToRgb(cc.dataset.colour)
+            };
+
+            let petrijevka = analyse(auto, settings);
+            console.log(petrijevka);
+            console.log(petrijevka.centre ?? [slider_Sx.value, slider_Sy.value], petrijevka.radius ?? slider_r.value, petrijevka.size ?? slider_size.value);
+
+            [slider_Sx.value, slider_Sy.value] = petrijevka.centre ?? [slider_Sx.value, slider_Sy.value]; // this won't work if [undef, undef]
+            slider_r.value = petrijevka.radius ?? slider_r.value;
+            slider_size.value = petrijevka.size ?? slider_size.value;
+            console.warn(petrijevka);
+            console.warn(petrijevka.bg, petrijevka.cc);
+            console.warn(rgbToHex(...petrijevka.bg));
+            colourPresentation.style.backgroundColor = bgc.style.color = bgc.dataset.colour = rgbToHex(...petrijevka.bg);
+            colourPresentation.style.color = cc.style.color = cc.dataset.colour = rgbToHex(...petrijevka.cc);
+            // set the two colour pickers once they start to exist
+
+            setTimeout(() => {count(); busy.classList.add("hidden");}, 100);
+            //count()
+            //busy.classList.add("hidden");
         })
+
+    </script>
+
+    <script>
+        // Touch the colour
+
+        const area = document.getElementById("canvas");
+        let bgc = document.getElementById("bgc");
+        let cc = document.getElementById("cc");
+        let changingState = null;
+        let latestHex;
+
+        bgc.addEventListener("click", function() {
+            changingState = "bgc";
+            canvas.style.touchAction = "none";
+            area.addEventListener("pointermove", handlePointerMove);
+            area.addEventListener("pointerup", handlePointerUp);
+            cc.classList.remove("changing");
+            bgc.classList.add("changing");
+        });
+        cc.addEventListener("click", function() {
+            changingState = "cc";
+            canvas.style.touchAction = "none";
+            area.addEventListener("pointermove", handlePointerMove);
+            area.addEventListener("pointerup", handlePointerUp);
+            bgc.classList.remove("changing");
+            cc.classList.add("changing");
+        });
+
+        
+        const rgbToHex = (r, g, b, a) => {
+            return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+        }
+
+        const hexToRgb = (hex) => {
+            var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? 
+                [parseInt(result[1], 16),parseInt(result[2], 16), parseInt(result[3], 16), 255]
+             : null;
+        }
+
+        function handlePointerMove(e) {
+            e.preventDefault();
+            var rect = e.target.getBoundingClientRect();
+            // https://stackoverflow.com/a/42111623
+            let x = e.clientX - rect.left; //x position within the element.
+            let y = e.clientY - rect.top;  //y position within the element.
+
+            actualX = Math.round(sizes.sirina/rect.width * x);
+            actualY = Math.round(sizes.visina/rect.height * y);
+            /*let c = document.getElementById("canvas");
+            let ctx = c.getContext("2d");
+            let p = ctx.getImageData(actualX, actualY, 1, 1).data;
+            */
+           let p = getArrPixelColour(actualX, actualY);
+            let hex = rgbToHex(...p);
+            //document.getElementById("outputColours").innerHTML = hex;
+            document.getElementById("outputColours").innerHTML = actualX + ", " + actualY;
+            document.getElementById("outputColours").style.backgroundColor = hex;
+            latestHex = hex;
+        }
+
+        // We might need to get colours here: if pointer === tap, then it wasn't moved, so lastHex is empty or obsolete.
+        function handlePointerUp(e) {
+            canvas.style.removeProperty("touch-action");
+            switch(changingState) {
+                case "bgc":
+                    bgc.style.color = bgc.dataset.colour = latestHex;
+                    break;
+                case "cc":
+                    cc.style.color = cc.dataset.colour = latestHex;
+                    break;
+            }
+            changingState = null;
+            area.removeEventListener("pointermove", handlePointerMove);
+            area.removeEventListener("pointerup", handlePointerUp);
+            bgc.classList.remove("changing");
+            cc.classList.remove("changing");
+            settings.dispatchEvent(new Event("change"));
+        }
+
+
 
     </script>
 </body>

@@ -1,0 +1,17 @@
+.hidden {
+    display: none;
+}
+
+.changing {
+    background-color: #f0f0f0;
+    border: 2px dashed #64b7ff;
+}
+
+.busy {
+    background-color: #f0f0f0;
+    border: 2px dashed #64b7ff;
+    font-size: 2em;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
