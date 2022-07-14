@@ -89,6 +89,7 @@ function analyse(auto=true, settings={}) {
     detectPetriDish(bgColour);
     // PetriDish detection also sets actual bg, cc colours to the Petrijevka class. 
 
+    petrijevka.size = 1; // Ticking auto should reset all params, including size threshold!
     if(!auto) {
         petrijevka.centre = settings?.S ?? petrijevka.centre;
         petrijevka.radius = settings?.r ?? petrijevka.radius;
