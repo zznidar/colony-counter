@@ -461,10 +461,11 @@ function count() {
                 colonyStart = y;
                 y++;
                 // TODO: while y < y_end to prevent spilling over the dish. Check it doesn't produce false-positives then.
-                while(y < visina && isColourColony(arr.slice(0 + 4*x + 4*sirina*y, 4 + 4*x + 4*sirina*y))) { // pixel svetel
+                while(y < y_end && isColourColony(arr.slice(0 + 4*x + 4*sirina*y, 4 + 4*x + 4*sirina*y))) { // pixel svetel
                     setPixels(x, y, 255, 0, 0, 255);
                     y++;
                 }
+                if(!isInCircle(x, y)) continue; // spilt over the dish
                 //console.log(x, y, "is not anymore hell.");
                 // pixel ni vec svetel
                 colonyEnd = y
@@ -486,10 +487,11 @@ function count() {
                 //console.log(x, y, "ist hell");
                 colonyStart = x;
                 x++;
-                while(x < sirina && isColourColony(arr.slice(0 + 4*x + 4*sirina*y, 4 + 4*x + 4*sirina*y))) { // pixel svetel
+                while(x < x_end && isColourColony(arr.slice(0 + 4*x + 4*sirina*y, 4 + 4*x + 4*sirina*y))) { // pixel svetel
                     //setPixels(x, y, 255, 0, 0, 255);
                     x++;
                 }
+                if(!isInCircle(x, y)) continue; // spilt over the dish
                 //console.log(x, y, "is not anymore hell.");
                 // pixel ni vec svetel
                 colonyEnd = x
@@ -504,6 +506,7 @@ function count() {
                     for(let i = -3; i < 5; i++) {
                         for(let j = -3; j < 5; j++) {
                             setPixels(sredina + i, y + j, ...test); // ...centre_colour // ...[Math.round(Math.random()*255), Math.round(Math.random()*255), Math.round(Math.random()*255), 255]
+                            //console.log(sredina, i, sredina + i);
                             a[sredina + i][y + j] = -1; // already checked
                         }
                     }
