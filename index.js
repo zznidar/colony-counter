@@ -523,7 +523,8 @@ function count() {
     context.putImageData(imgdata, 0, 0);
 
     console.log("Counted colonies: ", colonies);
-    document.getElementById("outputColonies").innerHTML = `Counted colonies: <b>${colonies}</b> <br><br>Image size: ${sirina}x${visina} px (original: ${slikaWidth}x${slikaHeight} px)`
+    document.getElementById("outputColonies").innerHTML = `Counted colonies: <b>${colonies}</b>`
+    document.getElementById("outputSizes").innerHTML = `Image size: ${sirina}x${visina} px (original: ${slikaWidth}x${slikaHeight} px)`
 
     // https://www.tutorialspoint.com/building-frequency-map-of-all-the-elements-in-an-array-javascript
     const getFrequency = (array) => {

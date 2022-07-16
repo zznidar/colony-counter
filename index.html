@@ -11,6 +11,11 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="header">    
+        <h1>Colony Counter</h1>
+        <p style="margin-top: 0;padding-bottom: 1rem;">Take a picture of your Petri dish, let Colony Counter count the colonies!</p>
+    </div>
+
     <label for="input">Pick your Petri dish: </label>
     <input type="file" id="input" name="input" accept="image/*"/>
     <br>
@@ -20,6 +25,7 @@
 
     <div>
         <p>Detected colours: <span id="colourPresentation" style="background-color: #1055dd; color: #ffdd34; font-size:3em;vertical-align: middle;">&#9679;</span> <span id="outputColonies" style="font-size:1.1em;"></span></p>
+        <p id="outputSizes"></p>
         <p id="outputText"><span id="outputColours"></span><br></p>
     </div>
 
