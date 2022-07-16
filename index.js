@@ -34,6 +34,7 @@ var debug = (new URL(window.location.href)).searchParams.get("debug") !== null;
 console.log("Debug: ", debug);
 
 function initialise(slika) {
+    centre = radius = undefined;
     console.warn("Started");
     document.getElementById("outputColours").innerText = "Detected colours: ";
     colonies = 0;
@@ -291,7 +292,7 @@ function detectColour(x, y, width, height, nGroups=2) {
     // Create a new group only when there's a difference of more than some threshold?
 }
 
-
+let centre, radius;
 function detectPetriDish(agarColour, repeat=0, xc=sirina>>>1, yc=visina>>>1) {
     const edgeColours = ["blue", "green", "pink", "purple", "yellow", "white", "black"];
     let x0, x1, y0, y1;
@@ -397,6 +398,9 @@ function detectPetriDish(agarColour, repeat=0, xc=sirina>>>1, yc=visina>>>1) {
                 return("repeating");
             }
     }
+
+    centre = centre ?? [sirina>>>1, visina>>>1]
+    radius = radius ?? (sirina + visina)>>>2;
     
     console.log("Krožnica: ", ...centre, radius);
     petrijevka.centre = centre;
