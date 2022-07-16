@@ -447,10 +447,10 @@ function count() {
     size_threshold = petrijevka.size;
     colonies = 0;
 
-    const x_start = Math.max(S[0]-r, 0),
-    y_start = Math.max(S[1]-r, 0),
-    x_end = Math.min(S[0]+r, sirina),
-    y_end = Math.min(S[1]+r, visina);
+    const x_start = Math.max(S[0]-r, 0+3), // when centre found, we set values to a square of -3:5; prevent getting out of bounds
+    y_start = Math.max(S[1]-r, 0+3),
+    x_end = Math.min(S[0]+r, sirina-5),
+    y_end = Math.min(S[1]+r, visina-5);
     for(let x = x_start; x < x_end; x++) { // 0; sirina
         let colonyStart, colonyEnd;
         for(let y = y_start; y < y_end; y++) { // 0; visina
@@ -502,6 +502,8 @@ function count() {
                 setPixels(sredina+1, y, ...line_colour);
 
                 if(a[sredina][y] > size_threshold && b[y][sredina] > size_threshold) {
+                    //whRatio = a[sredina][y]/b[y][sredina];
+                    //console.warn(x, y, whRatio);
                     test = debug ? centre_colours[velikost-1] ?? centre_colour : centre_colour;
                     for(let i = -3; i < 5; i++) {
                         for(let j = -3; j < 5; j++) {
