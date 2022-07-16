@@ -144,7 +144,12 @@
 
             }
 
-            sizes = initialise(base_image);
+            try {
+                sizes = initialise(base_image);
+            } catch(err) {
+                alert("Whoops, that was an error initialising! Make sure you have selected a valid image. Please report it to the developer. \n" + err);
+                console.error(err);
+            }
             console.log("Initialised");
             [slider_Sx.max, slider_Sy.max] = [sizes.sirina, sizes.visina];
             slider_r.max = Math.max(sizes.visina, sizes.sirina)>>>1;
@@ -159,7 +164,12 @@
                 "cc": hexToRgb(cc.dataset.colour)
             };
 
-            let petrijevka = analyse(auto, settings);
+            try {
+                let petrijevka = analyse(auto, settings);
+            } catch(err) {
+                alert("Whoops, that was an error while analysing the petrijevka! Please report it to the developer. \n" + err);
+                console.error(err);
+            }
             console.log(petrijevka);
             console.log(petrijevka.centre ?? [slider_Sx.value, slider_Sy.value], petrijevka.radius ?? slider_r.value, petrijevka.size ?? slider_size.value);
 
@@ -173,7 +183,16 @@
             colourPresentation.style.color = cc.style.color = cc.dataset.colour = rgbToHex(...petrijevka.cc);
             // set the two colour pickers once they start to exist
 
-            setTimeout(() => {count(); busy.classList.add("hidden");}, 100);
+            setTimeout(() => {
+                try {
+                    count(); 
+                } catch(err) {
+                    alert("Whoops, that was an error while counting! Please report it to the developer. \n" + err);
+                    console.error(err);
+                }
+                busy.classList.add("hidden");
+            
+            }, 100);
             //count()
             //busy.classList.add("hidden");
         })
