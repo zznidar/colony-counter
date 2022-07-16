@@ -469,7 +469,7 @@ function count() {
                 //console.log(x, y, "is not anymore hell.");
                 // pixel ni vec svetel
                 colonyEnd = y
-                sredina = Math.floor((colonyStart + colonyEnd)/2)
+                sredina = (colonyStart + colonyEnd)>>>1;
                 velikost = colonyEnd - colonyStart;
                 a[x][sredina] = a[x][sredina+1] = velikost;
                 setPixels(x, sredina, ...line_colour);
@@ -495,7 +495,7 @@ function count() {
                 //console.log(x, y, "is not anymore hell.");
                 // pixel ni vec svetel
                 colonyEnd = x
-                sredina = Math.floor((colonyStart + colonyEnd)/2)
+                sredina = (colonyStart + colonyEnd)>>>1;
                 velikost = colonyEnd - colonyStart;
                 b[y][sredina] = b[y][sredina+1] = velikost;
                 setPixels(sredina, y, ...line_colour);
