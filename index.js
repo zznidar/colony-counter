@@ -35,6 +35,7 @@ console.log("Debug: ", debug);
 
 function initialise(slika) {
     centre = radius = undefined;
+    negative = false;
     console.warn("Started");
     document.getElementById("outputColours").innerText = "Detected colours: ";
     colonies = 0;
