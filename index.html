@@ -63,7 +63,7 @@
             <input type="range" min="0.01" max="0.99" value="0.4" step="0.01" class="slider" name="slider_L" id="slider_L">
             -->
             <label for="bgc">Background colour, click to change -></label>
-            <span style="color:#ffdd34; font-size:2em;vertical-align: middle;" name="bgc" id="bgc">&#9724;</span>
+            <span style="background-color:#ffdd34; font-size:2em;vertical-align: middle;" name="bgc" id="bgc">__</span>
             <label for="cc">Colour of colonies, click to change -></label>
             <span style="color:#1055dd; font-size:2em;vertical-align: middle;" name="cc" id="cc">&#9679;</span>
 
@@ -179,7 +179,7 @@
             console.warn(petrijevka);
             console.warn(petrijevka.bg, petrijevka.cc);
             console.warn(rgbToHex(...petrijevka.bg));
-            colourPresentation.style.backgroundColor = bgc.style.color = bgc.dataset.colour = rgbToHex(...petrijevka.bg);
+            colourPresentation.style.backgroundColor = bgc.style.backgroundColor = bgc.style.color = bgc.dataset.colour = rgbToHex(...petrijevka.bg);
             colourPresentation.style.color = cc.style.color = cc.dataset.colour = rgbToHex(...petrijevka.cc);
             // set the two colour pickers once they start to exist
 
