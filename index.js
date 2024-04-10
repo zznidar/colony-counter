@@ -120,8 +120,9 @@ function analyse(auto=true, settings={}) {
  size_threshold = 10;
 const line_colour = [0, 0, 0, 255];
 const centre_colour = [3, 219, 252, 255]
-const centre_colours = [[0,255,0,255], [0,0,255,255], [182, 182, 229,255], [255,255,255,255], [127,127,127,255], [225, 182, 229,255], [233, 0, 255,255], [255, 175, 136,255]];
-for(let i = 0; i < centre_colours.length; i++) {
+ centre_colours = [[0,255,0,255], [0,0,255,255], [182, 182, 229,255], [255,255,255,255], [127,127,127,255], [225, 182, 229,255], [233, 0, 255,255], [255, 175, 136,255]];
+centre_colours[-2] = [0,255,0,255];
+ for(let i = 0; i < centre_colours.length; i++) {
     let t = centre_colours[i];
     console.log(`%c${i+1}`, `background-color: rgb(${t[0]}, ${t[1]}, ${t[2]}); font-weight: bold;`);
 }
@@ -502,22 +503,23 @@ function count() {
                 colonyEnd = x
                 sredina = (colonyStart + colonyEnd)>>>1;
                 velikost = colonyEnd - colonyStart;
-                b[y][sredina] = b[y][sredina+1] = velikost;
+                if(b[y][sredina] !== -1) velikost = -1;
+                b[y][sredina] = b[y][sredina+1] = velikost; // only if not inhibited by neighbouring centre!
                 setPixels(sredina, y, ...line_colour);
                 setPixels(sredina+1, y, ...line_colour);
 
-                if(a[sredina][y] > size_threshold && b[y][sredina] > size_threshold) {
+                if(a[sredina][y] > size_threshold && (b[y][sredina] > size_threshold || b[y][sredina] === -1)) {
                     //whRatio = a[sredina][y]/b[y][sredina];
                     //console.warn(x, y, whRatio);
                     test = debug ? centre_colours[velikost-1] ?? centre_colour : centre_colour;
-                    for(let i = -3; i < 5; i++) {
-                        for(let j = -3; j < 5; j++) {
+                    for(let i = 1; i < 5; i++) {
+                        for(let j = 1; j < 5; j++) {
                             setPixels(sredina + i, y + j, ...test); // ...centre_colour // ...[Math.round(Math.random()*255), Math.round(Math.random()*255), Math.round(Math.random()*255), 255]
                             //console.log(sredina, i, sredina + i);
-                            a[sredina + i][y + j] = -1; // already checked
+                            b[sredina + i][y + j] = -1; // already checked
                         }
                     }
-                    colonies++;
+                    if(b[y][sredina] !== -1) colonies++;
 
                     // Only push to ai-sizes if near centre of the circle. To avoid detecting edges as colonies. 
                     if(isFarFromEdge(sredina, y)) colonySizes.push(velikost);
