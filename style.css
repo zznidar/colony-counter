@@ -37,3 +37,8 @@ h1 {
     margin: 1rem;
     padding: 1rem;
 }
+
+#update-info {
+    font-size: small;
+    font-style: italic;
+}
