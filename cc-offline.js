@@ -1,9 +1,8 @@
 {
-	"version": 1,
+	"version": 2,
 	"fileList": [
 		"index.html",
-        "manifest.webmanifest",
-        "index.js",
+		"index.js",
 		"style.css"
 	],
 	"lazyLoad": [
