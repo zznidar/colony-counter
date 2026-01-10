@@ -28,6 +28,7 @@ var sirina, visina; // resized size; we should set this into some class
 var imgdata, arr_shallow, arr; // "global" vars; also put this into Canvas class or sth
 
 negative = false // If we want to analyse dark bacteria on light agar (e. g. HA in contrast to KA)
+deLine = true; // Whether to ignore lines when counting colonies
 
 // If debug, draw all rectangles and circles
 var debug = (new URL(window.location.href)).searchParams.get("debug") !== null;
@@ -84,6 +85,8 @@ function analyse(auto=true, settings={}) {
     logColours(barve_temp_var_name);
     context.putImageData(imgdata, 0, 0);
 
+    deLine = settings?.ignoreLines ?? true;
+
     bgColour = barve_temp_var_name[0];
     ccColour = barve_temp_var_name[1];
     // Better would be to compare number of elements of each colour,
@@ -99,6 +102,7 @@ function analyse(auto=true, settings={}) {
         negative = settings?.dark ?? negative;
         petrijevka.bg = settings?.bg ?? petrijevka.bg;
         petrijevka.cc = settings?.cc ?? petrijevka.cc;
+        deLine = settings?.ignoreLines ?? deLine;
     }
 
     //if(!debug) {
@@ -120,6 +124,7 @@ function analyse(auto=true, settings={}) {
  size_threshold = 10;
 const line_colour = [0, 0, 0, 255];
 const centre_colour = [3, 219, 252, 255]
+const erase_removal_colour = [255, 255, 255, 255];
 const centre_colours = [[0,255,0,255], [0,0,255,255], [182, 182, 229,255], [255,255,255,255], [127,127,127,255], [225, 182, 229,255], [233, 0, 255,255], [255, 175, 136,255]];
 for(let i = 0; i < centre_colours.length; i++) {
     let t = centre_colours[i];
@@ -436,6 +441,16 @@ function detectPetriDish(agarColour, repeat=0, xc=sirina>>>1, yc=visina>>>1) {
     // Načeloma bi lahko hodil iz obeh smeri hkrati.
 }
 
+function negateNeighbours(x,y,minus=-3,plus=+5,test=centre_colour, skipDrawing=false) {
+    for(let i = minus; i < plus; i++) {
+        for(let j = minus; j < plus; j++) {
+            if(!skipDrawing) setPixels(x + i, y + j, ...test);
+            //a[x+i][y+j] *= -1;
+            a[x+i][y+j] = -Math.abs(a[x+i][y+j]);
+        }
+    }
+}
+
 
 function count() {
         // arr = [r00, g00, b00, a00, r10, g10, b10, a10] // Apparently bomo analizirali po vrsticah najprej.
@@ -510,17 +525,32 @@ function count() {
                     //whRatio = a[sredina][y]/b[y][sredina];
                     //console.warn(x, y, whRatio);
                     test = debug ? centre_colours[velikost-1] ?? centre_colour : centre_colour;
-                    for(let i = -3; i < 5; i++) {
+/*                     for(let i = -3; i < 5; i++) {
+                        for(let j = -3; j < 5; j++) {
+                            setPixels(sredina + i, y + j, ...test); // ...centre_colour // ...[Math.round(Math.random()*255), Math.round(Math.random()*255), Math.round(Math.random()*255), 255]
+                            //console.log(sredina, i, sredina + i);
+                            //a[sredina + i][y + j] = -1; // already checked
+                            a[sredina + i][y + j] *= -1; // sosede negiramo, da ne stejemo veckrat.
+                        }
+                    } */
+                    if(deLine) {
+                        negateNeighbours(sredina, y, -3, +5, test);
+                    } else { // This is basically the same. Negating numbers is very computationally expensive (because we have to abs() them to avoid re-negation)
+                        for(let i = -3; i < 5; i++) {
                         for(let j = -3; j < 5; j++) {
                             setPixels(sredina + i, y + j, ...test); // ...centre_colour // ...[Math.round(Math.random()*255), Math.round(Math.random()*255), Math.round(Math.random()*255), 255]
                             //console.log(sredina, i, sredina + i);
                             a[sredina + i][y + j] = -1; // already checked
+                            }
                         }
                     }
                     colonies++;
 
                     // Only push to ai-sizes if near centre of the circle. To avoid detecting edges as colonies. 
                     if(isFarFromEdge(sredina, y)) colonySizes.push(velikost);
+                } else if(deLine && a[sredina][y] < 0) {
+                    // nastavimo sosede na nujno negativno vrednost
+                    negateNeighbours(sredina, y, -3, +5, erase_removal_colour, true);
                 }
             }
         }

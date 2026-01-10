@@ -86,13 +86,16 @@
 
             <label for="slider_r">Circle radius: </label>
             <input type="range" min="0" max="500" value="400" step="1" class="slider" name="slider_r" id="slider_r">
+        
+            <label for="check_lineIgnorer">Ignore lines (e.&nbsp;g. petri dish edge): </label>
+            <input type="checkbox" class="slider" name="check_lineIgnorer" id="check_lineIgnorer" checked>
 
             <br>
         </div>
     </div>
 
     <footer style="color: gray; padding-bottom: 1.5rem;">
-        <p>Author: Žan&nbsp;Žnidar, ©&nbsp;2022<br>
+        <p>Author: Žan&nbsp;Žnidar, ©&nbsp;2022–2026<br>
             Source code is available on <a href="https://github.com/zznidar/colony-counter">GitHub</a><br>
         <span id="update-info"></span></p>
     </footer>
@@ -128,6 +131,7 @@
                     // Always enable auto-detect when chaning pictures
                     check_auto.checked = true;
                     check_neg.checked = false;
+                    check_lineIgnorer.checked = true;
                     settings.dispatchEvent(new Event("change"));
 
                     // Now we don't even need to call other functions as the change event will trigger the analysis.
@@ -164,7 +168,8 @@
                 "auto": auto,
                 "size": slider_size.value,
                 "bg": hexToRgb(bgc.dataset.colour),
-                "cc": hexToRgb(cc.dataset.colour)
+                "cc": hexToRgb(cc.dataset.colour),
+                "ignoreLines": auto || check_lineIgnorer.checked
             };
 
             try {
