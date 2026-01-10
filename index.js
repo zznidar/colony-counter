@@ -522,6 +522,17 @@ function count() {
                 setPixels(sredina+1, y, ...line_colour);
 
                 if(a[sredina][y] > size_threshold && b[y][sredina] > size_threshold) {
+                    if(deLine) {
+                        let ratio = a[sredina][y]/b[y][sredina];
+                        if(ratio < 0.66 || ratio > 1.5) {
+                            // ni okroglo, ignoriramo
+                            negateNeighbours(sredina, y, -3, +5, erase_removal_colour);
+                            continue;
+                        }
+                    }
+
+
+                    
                     //whRatio = a[sredina][y]/b[y][sredina];
                     //console.warn(x, y, whRatio);
                     test = debug ? centre_colours[velikost-1] ?? centre_colour : centre_colour;
