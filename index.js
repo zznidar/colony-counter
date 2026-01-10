@@ -466,7 +466,7 @@ function count() {
                 colonyStart = y;
                 y++;
                 // TODO: while y < y_end to prevent spilling over the dish. Check it doesn't produce false-positives then.
-                while(y < y_end && isColourColony(arr.slice(0 + 4*x + 4*sirina*y, 4 + 4*x + 4*sirina*y))) { // pixel svetel
+                while(y < y_end && isColourColony(arr.slice(0 + 4*x + 4*sirina*y, 4 + 4*x + 4*sirina*y)) && isInCircle(x,y)) { // pixel svetel
                     setPixels(x, y, 255, 0, 0, 255);
                     y++;
                 }
