@@ -191,7 +191,8 @@
             colourPresentation.style.color = cc.style.color = cc.dataset.colour = rgbToHex(...petrijevka.cc);
             // set the two colour pickers once they start to exist
 
-            setTimeout(() => {
+            requestAnimationFrame(() => { // Happens just before repaint, but we want repaint to show "Busy" text
+                requestAnimationFrame(() => { // Next frame.
                 try {
                     count(); 
                 } catch(err) {
@@ -199,10 +200,10 @@
                     console.error(err);
                 }
                 busy.classList.add("hidden");
+                });
             
-            }, 100);
-            //count()
-            //busy.classList.add("hidden");
+            });
+
         })
 
     </script>
