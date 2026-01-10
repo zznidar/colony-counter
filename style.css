@@ -42,3 +42,7 @@ h1 {
     font-size: small;
     font-style: italic;
 }
+
+#input {
+    max-width: 100%;
+}
